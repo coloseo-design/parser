@@ -1,7 +1,7 @@
 
 const Spec = [
   /** 匹配多行注释 */
-[/^\/\*[\s\S]*?\*\//, null],
+  [/^\/\*[\s\S]*?\*\//, null],
   /** 匹配单行注释 // */
   [/^\/\/.*/, null],
   /* 匹配空格，如果空格开头，则忽略  */
@@ -42,10 +42,9 @@ class Tokenizer {
     if (!this.hasMoreTokens()) {
       return null
     }
-    const string = this._string.slice(this._cursor);
-    console.log("string", string);
-    for (const [regexp, tokenType] of Spec) {
 
+    const string = this._string.slice(this._cursor);
+    for (const [regexp, tokenType] of Spec) {
       const tokenValue = this._match(regexp, string);
       if (!tokenValue) {
         continue;
@@ -57,6 +56,10 @@ class Tokenizer {
       if (!tokenType) {
         return this.getNextToken();
       }
+      console.log('tokenType', tokenType, {
+        type: tokenType,
+        value: tokenValue,
+      }, tokenValue);
       return {
         type: tokenType,
         value: tokenValue,
