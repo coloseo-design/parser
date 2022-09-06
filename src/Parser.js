@@ -47,7 +47,6 @@ class Parser {
    */
   Literal() {
     const token = this._lookahead;
-    console.log('token', token);
     switch(token.type) {
       case "NUMBER":
         return this.NumericLiteral()
@@ -66,7 +65,6 @@ class Parser {
    */
   StringLiteral() {
     const token = this._eat('STRING');
-    console.log('token', token.value);
     return {
       type: 'StringLiteral',
       value: token.value,

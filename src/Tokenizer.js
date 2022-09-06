@@ -1,4 +1,18 @@
-const { baseTypeStrictlyMatches } = require("@babel/traverse/lib/path/inference");
+
+const Spec = [
+  /** 匹配多行注释 */
+[/^\/\*[\s\S]*?\*\//, null],
+  /** 匹配单行注释 // */
+  [/^\/\/.*/, null],
+  /* 匹配空格，如果空格开头，则忽略  */
+  [/^\s+/,  null],
+  /* 匹配数字 */
+  [/^\d+/, "NUMBER"],
+  /* 匹配双引号字符串  */
+  [/^"[^"]*"/, "STRING"],
+  /** 匹配单引号字符串  */
+  [/^'[^']*'/, "STRING"],
+];
 
 /**
  * Tokenizer class.
@@ -22,18 +36,63 @@ class Tokenizer {
   }
 
   /**
-   * Obtain next token
+   * 利用正则表达式去分词
    */
   getNextToken() {
     if (!this.hasMoreTokens()) {
       return null
     }
     const string = this._string.slice(this._cursor);
+    console.log("string", string);
+    for (const [regexp, tokenType] of Spec) {
+
+      const tokenValue = this._match(regexp, string);
+      if (!tokenValue) {
+        continue;
+      }
+      /**
+       * 如果是空格 跳过
+       * 注意顺序，必须匹配一次，让游标移动
+       */
+      if (!tokenType) {
+        return this.getNextToken();
+      }
+      return {
+        type: tokenType,
+        value: tokenValue,
+      };
+    }
+    throw new SyntaxError(`Unexpected token: "${string[0]}"`);
+  }
+
+  _match(regexp, string) {
+    const matched = regexp.exec(string);
+    if (matched) {
+      this._cursor += matched[0].length;
+      return matched[0];
+    }
+    return null;
+  }
+
+
+  /**
+   * Obtain next token
+   */
+  _getNextToken() {
+    if (!this.hasMoreTokens()) {
+      return null
+    }
+    const string = this._string.slice(this._cursor); // abc123
+    /**
+     *                   / numbner \
+     * 有限状态机: 原始输入             end
+     *                   \ string  /
+     */
     // number
-    console.log('string', string, Number.isNaN(Number(string[0])));
     if (!Number.isNaN(Number(string[0]))) {
       let number = '';
       while (!Number.isNaN(Number(string[this._cursor]))) {
+        console.log("cursour", this._cursor, string);
         number += string[this._cursor++];
       }
       return {
