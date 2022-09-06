@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node __test__/run.js",
+    "commit": "npx git-cz",
     "init:commit": "npx commitizen init cz-conventional-changelog --yarn --dev --exact",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md"
   },
