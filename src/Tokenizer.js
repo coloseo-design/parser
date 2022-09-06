@@ -12,6 +12,8 @@ const Spec = [
   [/^"[^"]*"/, "STRING"],
   /** 匹配单引号字符串  */
   [/^'[^']*'/, "STRING"],
+  /** 分号 */
+  [/^;/, ";"],
 ];
 
 /**
@@ -56,10 +58,6 @@ class Tokenizer {
       if (!tokenType) {
         return this.getNextToken();
       }
-      console.log('tokenType', tokenType, {
-        type: tokenType,
-        value: tokenValue,
-      }, tokenValue);
       return {
         type: tokenType,
         value: tokenValue,

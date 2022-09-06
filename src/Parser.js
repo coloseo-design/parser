@@ -30,14 +30,67 @@ class Parser {
   /**
    * Main entry point
    * progrma:
-   *  :Literal
+   *  :StatementList
    */
   Program() {
     return {
       type: "Program",
-      body: this.Literal(),
+      body: this.StatementList(),
     }
   }
+
+  /**
+   * 准备知识
+   *
+   * 左递归
+   * 产生式 expr = expr + term
+   * StatementList = StatementList + Statement
+   *
+   * 代码实现
+   * StatementList
+   *  : Statement
+   *  | StatementList Statement -> StatementList Statement Statement
+   *                            -> StatementList Statement Statement Statement
+   *                            -> StatementList Statement Statement Statement Statement
+   *
+   */
+  StatementList() {
+    const statementList = [this.Statement()];
+    while (this._lookahead != null) {
+      statementList.push(this.Statement());
+    }
+    return statementList;
+  }
+
+  /**
+   * Statement
+   *  :ExpressionStatement
+   *  ;
+   */
+  Statement() {
+    return this.ExpressionStatement();
+  }
+
+  /**
+   * ExpressionStatement
+   *  :Expression ';'
+   *  ;
+   */
+   ExpressionStatement() {
+    const expression = this.Expression();
+    this._eat(';'); // 消费掉分号
+    return {
+      type: 'ExpressionStatement',
+      expression,
+    };
+   }
+
+   /**
+    *
+    */
+   Expression() {
+    return this.Literal();
+   }
 
   /**
    * Literal
@@ -56,7 +109,6 @@ class Parser {
     throw new SyntaxError(
       `Literal: unexpected literal product`
     );
-
   }
   /**
    * StringLiteral
