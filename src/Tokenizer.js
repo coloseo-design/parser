@@ -85,7 +85,7 @@ class Tokenizer {
     }
     const string = this._string.slice(this._cursor); // abc123
     /**
-     *                   / numbner \
+     *                   / number \
      * 有限状态机: 原始输入             end
      *                   \ string  /
      */

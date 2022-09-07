@@ -13,21 +13,7 @@ function test(program, expected) {
   assert.deepEqual(expected, ast);
 }
 
-
 tests.forEach(testRun => testRun(test));
 console.log('All assertions passed.');
-
-function exec() {
-  const program = `
-  // hello
-  "hello";
-  // number
-  12;
-  `;
-  const ast = parser.parse(program);
-  console.log(JSON.stringify(ast, null, 2));
-}
-
-// exec();
 
 
