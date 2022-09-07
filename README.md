@@ -20,7 +20,32 @@
 ### v2的词法结构
 ```javascript
   Program:
-    StatementList;  
+    StatementList:
+      [
+        Statement:
+          ExpressionStatement:
+            Literal;
+      ]
+```
+实例
+```javascript
+// 单行注释
+"hello";
+/** 多行注释 */
+123456;
+```
+
+### v3的词法结构
+##### 增加语句块的支持block
+```javascript
+  Program:
+    StatementList:
+      [
+        Statement: 
+          ExpressionStatement:
+            Literal
+          BolckStatement;
+      ]
 ```
 
 ### 知识点

@@ -87,7 +87,7 @@ class Tokenizer {
     /**
      *                   / number \
      * 有限状态机: 原始输入             end
-     *                   \ string  /
+     *                   \ string /
      */
     // number
     if (!Number.isNaN(Number(string[0]))) {
