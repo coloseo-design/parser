@@ -5,7 +5,9 @@
 ### v1的词法结构
 ```javascript
   Program:
-    Literal;
+    Literal:
+      StringLiteral
+      NumericLiteral
 ```
 实例
 ```javascript
@@ -36,19 +38,27 @@
 ```
 
 ### v3的词法结构
-##### 增加语句块的支持block
+##### 增加语句块的支持block和空的语句
 ```javascript
+
   Program:
     StatementList:
       [
         Statement: 
           ExpressionStatement:
             Literal
-          BolckStatement;
+          BolckStatement:
+            StatementList;  // 递归
+          EmptyStatement;
       ]
 ```
 
 ### 知识点
+#### v1的BNF语法:
+- Factor = Num | (Expr)
+- Num、(Expr) 优先级最高，所以做叶子节点，把他们统称为Factor
+
+
 #### 左递归
 - 产生式分成递归的和非递归的，如果一个产生式用自己来表示自己就会产生递归.
 - A=A’b’（'b’表示字符常量b）, 产生式一直朝左侧延伸，无法结束，永远不会结束，所以叫左递归.

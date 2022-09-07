@@ -3,6 +3,8 @@
  */
 const {  Tokenizer } = require('./Tokenizer');
 
+const stopLookahead = '}';
+
 class Parser {
 
   /**
@@ -56,7 +58,8 @@ class Parser {
    */
   StatementList() {
     const statementList = [this.Statement()];
-    while (this._lookahead != null) {
+    // 读取}之前的作为语句;
+    while (this._lookahead != null && this._lookahead.type !== stopLookahead) {
       statementList.push(this.Statement());
     }
     return statementList;
@@ -64,16 +67,52 @@ class Parser {
 
   /**
    * Statement
-   *  :ExpressionStatement
+   *  :ExpressionStatement ｜ BlockStatement | EmptyStatement
    *  ;
    */
   Statement() {
-    return this.ExpressionStatement();
+    switch(this._lookahead.type) {
+      case '{':
+        return this.BlockStatement();
+      case ';':
+        return this.EmptyStatement();
+      default:
+        return this.ExpressionStatement();
+    }
   }
 
   /**
+   * EmptyStatement
+   *  : ';'
+   *  ;
+   */
+  EmptyStatement() {
+    this._eat(';');
+    return {
+      type: 'EmptyStatement',
+    }
+  }
+
+  /**
+   * BlockStatement
+   *  : '{' Statement '}'
+   *  ;
+   */
+  BlockStatement() {
+    this._eat('{');
+    const body = this._lookahead.type !== '}' ? this.StatementList() : []
+    this._eat('}');
+    return {
+      type: 'BlockStatement',
+      body,
+    };
+  }
+
+
+
+  /**
    * ExpressionStatement
-   *  :Expression ';'
+   *  : Expression ';'
    *  ;
    */
    ExpressionStatement() {
@@ -106,6 +145,7 @@ class Parser {
       case "STRING":
         return this.StringLiteral();
     }
+    console.log('token', token);
     throw new SyntaxError(
       `Literal: unexpected literal product`
     );
