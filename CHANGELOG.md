@@ -1,3 +1,12 @@
+## [1.0.4](https://github.com/coloseo-design/parser/compare/v1.0.3...v1.0.4) (2022-09-09)
+
+
+### Features
+
+* 🎸 增加左操作赋值运算符号 ([9f0cdc5](https://github.com/coloseo-design/parser/commit/9f0cdc5094942cd103f6d0172d7d9644141ebd2f))
+
+
+
 ## 1.0.3 (2022-09-09)
 
 
