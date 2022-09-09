@@ -96,7 +96,7 @@ Program:
 ### v5的词法
 ##### 增加赋值语句
 ```javascript 
-// 在v4中增加了=，+=，-=，*=， /= 等左操作运算
+// 在v5中增加了=，+=，-=，*=， /= 等左操作赋值运算
 Program:
   StatementList:
     Statement: <--------------|   
