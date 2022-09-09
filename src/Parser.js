@@ -108,8 +108,6 @@ class Parser {
     };
   }
 
-
-
   /**
    * ExpressionStatement
    *  : Expression ';'
@@ -128,9 +126,83 @@ class Parser {
     *
     */
    Expression() {
-    return this.Literal();
+    // if (this._lookahead.type === '(' && this._lookahead.type !== ')') {
+    //   this._eat('(');
+    //   const expression = this.Expression();
+    //   this._eat(')');
+    //   return expression;
+    // }
+    return this.AdditiveExpression();
    }
 
+   /**
+    * AdditiveExpression
+    *   : Literal
+    *   | AdditiveExpression Additive_Operator Literal
+    *
+    *  需要兼容/*高优先级
+    * AdditiveExpression
+    *   : MultiplicativeExpression
+    *   | AdditiveExpression Additive_Operator MultiplicativeExpression ->  MultiplicativeExpression Additive_Operator MultiplicativeExpression
+    */
+  AdditiveExpression() {
+    let left = this.MultiplicativeExpression();
+    while (this._lookahead.type === 'ADDITIVE_OPERATOR') {
+      const operator = this._eat('ADDITIVE_OPERATOR').value;
+      const right = this.MultiplicativeExpression();
+      left = {
+        left,
+        operator,
+        right,
+        type: 'BinaryExpression',
+      }
+    }
+    return left;
+  }
+
+  /**
+   * MultiplicativeExpression
+   *  : PrimaryExpression
+   *  | MultiplicativeExpression MULTIPLICATIVE_OPERATOR PrimaryExpression -> PrimaryExpression MULTIPLICATIVE_OPERATOR PrimaryExpression
+   *  ;
+   */
+  MultiplicativeExpression() {
+    let left = this.PrimaryExpression();
+    while (this._lookahead.type === 'MULTIPLICATIVE_OPERATOR') {
+      const operator = this._eat('MULTIPLICATIVE_OPERATOR').value;
+      let right = this.PrimaryExpression();
+      left = {
+        left,
+        operator,
+        right,
+        type: 'BinaryExpression',
+      }
+    }
+    return left;
+  }
+
+  /**
+   * PrimaryExpression
+   * : Literal | ParenthesizedExpression
+   */
+  PrimaryExpression() {
+    if (this._lookahead.type === '(') {
+      return this.ParenthesizedExpression();
+    }
+    return this.Literal();
+  }
+
+  /**
+   * ParenthesizedExpression
+   * : '(' Expression ')
+   * ;
+   */
+  ParenthesizedExpression() {
+    this._eat('(');
+    let expression = this.Expression();
+    this._eat(')');
+    return expression;
+  }
   /**
    * Literal
    * : NumericLiteral
@@ -145,7 +217,6 @@ class Parser {
       case "STRING":
         return this.StringLiteral();
     }
-    console.log('token', token);
     throw new SyntaxError(
       `Literal: unexpected literal product`
     );

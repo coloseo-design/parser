@@ -47,11 +47,52 @@
         Statement: 
           ExpressionStatement:
             Literal
-          BolckStatement:
+          BlockStatement:
             StatementList;  // 递归
           EmptyStatement;
       ]
 ```
+示例
+```javascript
+// block嵌套
+{
+  // 单行注释
+  12;
+  "hello";
+  {
+    "hello";
+    123456;
+    ; // empty statement
+  }
+}
+```
+
+### v4的词法
+##### 增加双目运算符加减乘除
+```javascript 
+// 在v4中增加了双目运算符号
+Program:
+  StatementList:
+    Statement: <--------------|   
+      EmptyStatement          |
+      BlockStatement >--------|                // block代码块
+      ExpressionStatement   <----------------|
+        AdditiveExpression                   |
+          MultiplicativeExpression           |
+            PrimaryExpression                |
+              Literal                        |
+              ParenthesizedExpression >------|  // 控制优先级
+    ...
+```
+示例
+```javascript
+  2 + 3;
+  2 + 3 - 4;
+  (2 + 3) - 4;
+  2 * 3 + 4;
+  (2 + 3) * 4;
+```
+
 
 ### 知识点
 #### v1的BNF语法:

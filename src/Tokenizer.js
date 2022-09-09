@@ -19,6 +19,16 @@ const Spec = [
   /** block */
   [/^\{/, '{'],
   [/^\}/, '}'],
+
+  /** 括号优先级 */
+  [/^\(/, '('],
+  [/^\)/, ')'],
+
+  /** 二元操作符号 */
+  [/^[+\-]/, 'ADDITIVE_OPERATOR'], // +-
+  [/^[*\/]/, 'MULTIPLICATIVE_OPERATOR'], // */
+  // [/^\*/, '*'],
+  // [/^\//, '/'],
 ];
 
 /**
@@ -98,7 +108,6 @@ class Tokenizer {
     if (!Number.isNaN(Number(string[0]))) {
       let number = '';
       while (!Number.isNaN(Number(string[this._cursor]))) {
-        console.log("cursour", this._cursor, string);
         number += string[this._cursor++];
       }
       return {
