@@ -93,6 +93,35 @@ Program:
   (2 + 3) * 4;
 ```
 
+### v5的词法
+##### 增加赋值语句
+```javascript 
+// 在v4中增加了=，+=，-=，*=， /= 等左操作运算
+Program:
+  StatementList:
+    Statement: <--------------|   
+      EmptyStatement          |
+      BlockStatement >--------|                // block代码块
+      ExpressionStatement   <--------------------|
+        AssignmentExpression                     |
+            AdditiveExpression                   |
+              MultiplicativeExpression           |
+                PrimaryExpression                |
+                  Literal                        |
+                  ParenthesizedExpression >------|  // 控制优先级
+                  LeftHandSideExpression
+                    Identifier                    // 赋值标志符  
+                
+        
+    ...
+```
+示例
+```javascript
+a = 12;
+a = b = 12;
+a += 12;
+a = (b + 12);
+```
 
 ### 知识点
 #### v1的BNF语法:
