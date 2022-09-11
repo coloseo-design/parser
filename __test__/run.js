@@ -8,6 +8,7 @@ const tests = [
   require('./empty-statement-test'),
   require('./math-test'),
   require('./assigment-test'),
+  require('./varible-test'),
 ];
 
 const parser = new Parser();

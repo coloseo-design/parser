@@ -66,7 +66,7 @@ class Parser {
 
   /**
    * Statement
-   *  :ExpressionStatement ｜ BlockStatement | EmptyStatement
+   *  :ExpressionStatement ｜ BlockStatement | EmptyStatement ｜ VaribleStatenent
    *  ;
    */
   Statement() {
@@ -75,9 +75,66 @@ class Parser {
         return this.BlockStatement();
       case ";":
         return this.EmptyStatement();
+      case "let":
+        return this.VaribleStatement();
       default:
         return this.ExpressionStatement();
     }
+  }
+  /**
+   * VaribleStatement
+   * : 'let' VaribleDeclarationList ';'
+   * ;
+   * @returns
+   */
+  VaribleStatement() {
+    this._eat('let'); // 消费掉let，tokenizer继续
+    const declarations = this.VaribleDeclarationList();
+    this._eat(';')
+    return {
+      type: 'VaribleStatement',
+      declarations,
+    }
+  }
+  /**
+   * VaribleDeclarationList
+   * : VaribleDeclaration | VaribleDeclarationList ',' VaribleDeclaration
+   * ;
+   */
+  VaribleDeclarationList() {
+    const declarations = [];
+    do {
+      declarations.push(this.VaribleDeclaration());
+    } while(this._lookahead.type === ',' && this._eat(','));
+    return declarations;
+  }
+
+  /**
+   * VaribleDeclaration
+   * : Identifier OptionalVaribleInitializer
+   * ;
+   */
+  VaribleDeclaration() {
+    const id = this.Identifier();
+    const init = this._lookahead.type === 'ASSIGNMENT'
+      ? this.VaribleInitializer()
+      : null;
+    const varible = {
+      type: 'VaribleDeclaration',
+      id,
+      init,
+    };
+    return varible;
+  }
+  /**
+   * VaribleInitializer
+   * : 'ASSIGNMENT'
+   */
+  VaribleInitializer() {
+    this._eat('ASSIGNMENT');
+    const expression = this.AssignmentExpression();
+    // this._eat(';')
+    return expression;
   }
 
   /**
@@ -127,7 +184,6 @@ class Parser {
    *   ;
    */
   Expression() {
-    // 因为运算符号的优先级高于赋值语句
     return this.AssignmentExpression();
   }
 
@@ -138,7 +194,7 @@ class Parser {
    *  ;
    */
   AssignmentExpression() {
-    let left = this.AdditiveExpression();
+    let left = this.AdditiveExpression(); // 因为赋值语句的优先级低于+-运算符，所以+-*/运算符下行
     if (!this._isAssignmentOperator(this._lookahead.type)) {
       return left;
     }
@@ -146,7 +202,7 @@ class Parser {
       type: "AssignmentExpression",
       left: this._isAssignmentTargetValid(left),
       operator: this.AssignmentOperator().value,
-      right: this.AssignmentExpression(),
+      right: this.AssignmentExpression(), // 支持a = b = 1
     };
   }
 
@@ -206,9 +262,9 @@ class Parser {
    *   | AdditiveExpression Additive_Operator MultiplicativeExpression ->  MultiplicativeExpression Additive_Operator MultiplicativeExpression
    */
   AdditiveExpression() {
-    let left = this.MultiplicativeExpression();
+    let left = this.MultiplicativeExpression(); // 因为*/运算符优先级高于+-，所以下行
     while (this._lookahead.type === "ADDITIVE_OPERATOR") {
-      const operator = this._eat("ADDITIVE_OPERATOR").value;
+      const operator = this._eat("ADDITIVE_OPERATOR").value; // +-
       const right = this.MultiplicativeExpression();
       left = {
         left,
@@ -227,7 +283,7 @@ class Parser {
    *  ;
    */
   MultiplicativeExpression() {
-    let left = this.PrimaryExpression();
+    let left = this.PrimaryExpression(); // 括号，字面量的优先级高于乘除的优先级，所以继续下行
     while (this._lookahead.type === "MULTIPLICATIVE_OPERATOR") {
       const operator = this._eat("MULTIPLICATIVE_OPERATOR").value;
       let right = this.PrimaryExpression();
@@ -253,10 +309,10 @@ class Parser {
     }
 
     if (tokenType === "(") {
-      return this.ParenthesizedExpression();
+      return this.ParenthesizedExpression(); // 括号中包含一个Expression
     }
 
-    return this.LeftHandSideExpression();
+    return this.LeftHandSideExpression(); // 返回Identifier符号=
   }
 
   /**

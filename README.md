@@ -123,6 +123,42 @@ a += 12;
 a = (b + 12);
 ```
 
+### v6的词法
+##### 增加变量申明
+```javascript 
+// 变量申明，重用了ASSIGNMENT
+Program:
+  StatementList:   <-------|
+    EmptyStatement         |
+    BlockStatement --------|
+    ExpressionStatement
+      Expression                       <----|
+        AssignmentExpression                |  <--- |
+          AdditiveExpression                |       |
+            MultiplicativeExpression        |       |
+              PrimaryExpression             |       |
+                Literal                     |       |
+                ParenthesizedExpression  ---|       |
+                LeftHandSideExpression              |
+                  Identifier                        |
+    VaribleStatement:                               |
+      VaribleDeclaration:                           |
+        Identifier                                  |
+        Initializor                                 |
+          AssignmentExpression   -------------------|
+```
+示例
+```javascript
+let a = 12;
+let a;
+let a, b;
+let a, b = 2;
+let a = 1, b = 2;
+let a = b = 1;
+```
+
+
+
 ### 知识点
 #### v1的BNF语法:
 - Factor = Num | (Expr)
