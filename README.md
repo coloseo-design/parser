@@ -98,8 +98,8 @@ Program:
 ```javascript 
 // 在v5中增加了=，+=，-=，*=， /= 等左操作赋值运算
 Program:
-  StatementList:
-    Statement: <--------------|   
+  StatementList:  <-----------|
+    Statement:                |   
       EmptyStatement          |
       BlockStatement >--------|                // block代码块
       ExpressionStatement   <--------------------|
@@ -128,24 +128,25 @@ a = (b + 12);
 ```javascript 
 // 变量申明，重用了ASSIGNMENT
 Program:
-  StatementList:   <-------|
-    EmptyStatement         |
-    BlockStatement --------|
-    ExpressionStatement
-      Expression                       <----|
-        AssignmentExpression                |  <--- |
-          AdditiveExpression                |       |
-            MultiplicativeExpression        |       |
-              PrimaryExpression             |       |
-                Literal                     |       |
-                ParenthesizedExpression  ---|       |
-                LeftHandSideExpression              |
-                  Identifier                        |
-    VaribleStatement:                               |
-      VaribleDeclaration:                           |
-        Identifier                                  |
-        Initializor                                 |
-          AssignmentExpression   -------------------|
+  StatementList    <---------|
+    Statement                |
+      EmptyStatement         |
+      BlockStatement --------|
+      ExpressionStatement
+        Expression                       <----|
+          AssignmentExpression                |  <--- |
+            AdditiveExpression                |       |
+              MultiplicativeExpression        |       |
+                PrimaryExpression             |       |
+                  Literal                     |       |
+                  ParenthesizedExpression  ---|       |
+                  LeftHandSideExpression              |
+                    Identifier                        |
+      VaribleStatement:                               |
+        VaribleDeclaration:                           |
+          Identifier                                  |
+          Initializor                                 |
+            AssignmentExpression   -------------------|
 ```
 示例
 ```javascript
@@ -155,6 +156,72 @@ let a, b;
 let a, b = 2;
 let a = 1, b = 2;
 let a = b = 1;
+```
+
+### v7的词法
+##### 增加IF语句
+```javascript
+if (x) {
+  x = 10;
+} else {
+  x = 10;
+}
+// 语法结构
+Program
+  Statement[]       <--------|
+    Statement                |   <----|
+      EmptyStatement         |        |
+      BlockStatement --------|        |
+      ExpressionStatement             |
+        Expression       <---|        |
+      IfStatement            |        |
+        Expression  ---------|        |
+        Statement   ------------------|
+
+// >,<,==,>=, <=, BinaryExpression
+// 示例
+x > 10; // BinaryExpression
+x + 10 > 20; // 和AdditiveExpression优先级
+y = x + 10 > 20; // 和AssignmentExpression优先级
+// 优先级：AdditiveExpression > BinaryExpression > AssignmentExpression
+
+// 语法结构
+Program
+  Statement[]
+    Statement
+      EmptyStatement
+      BlockStatement
+      ExpressionStatement
+        Expression
+          AssignmentExpression
+            RelationalExpression
+              AdditiveExpression
+                MultiplicativeExpression
+                  PrimaryExpression
+                    Literal
+                    ParenthesizedExpression
+                    LeftHandSideExpression
+                      Identifier
+      IfStatement
+        Expression
+        Statement
+
+```
+示例：
+```javascript
+if (x > 0) {
+  x = 10;
+} else {
+  x = 10;
+}
+
+if (x + 1 > 0) {
+  x = 10;
+} else {
+  x = 10;
+}
+
+y = x + 1 > 0
 ```
 
 

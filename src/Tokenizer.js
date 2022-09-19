@@ -30,12 +30,19 @@ const Spec = [
   /** 定义关键字： 关键字的匹配优先级高于IDENTIFIER，必须放在IDENTIFIER前 */
   [/^\blet\b/, 'let'], // \b关键字\b,让独立的关键字被识别
 
+  /** if-else  */
+  [/^\bif\b/, 'if'],
+  [/^\belse\b/, 'else'],
 
   /** 变量名称 */
   [/^\w+/, 'IDENTIFIER'], // 与Number语句重合，必须放在NUMBE之后
+
   /** 赋值语句 =, +=, -=, *=, /= */
   [/^=/, 'ASSIGNMENT'],
   [/^[\+\-\*\/]=/, 'COMPLEX_ASSIGNMENT'],
+
+  /** 关系运算符 >,<,==,>=,<= */
+  [/^[><]=?/, 'RELATIONAL_OPERATOR'],
 
   /** 二元操作符号 必须在赋值之后 */
   [/^[+\-]/, 'ADDITIVE_OPERATOR'], // +-

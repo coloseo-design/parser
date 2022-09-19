@@ -66,11 +66,13 @@ class Parser {
 
   /**
    * Statement
-   *  :ExpressionStatement ｜ BlockStatement | EmptyStatement ｜ VaribleStatenent
+   *  :ExpressionStatement ｜ BlockStatement | EmptyStatement ｜ VaribleStatenent | IfStatement
    *  ;
    */
   Statement() {
     switch (this._lookahead.type) {
+      case "if":
+        return this.IfStatement();
       case "{":
         return this.BlockStatement();
       case ";":
@@ -81,6 +83,27 @@ class Parser {
         return this.ExpressionStatement();
     }
   }
+  /**
+   * IfStatement
+   *  : 'if' '(' Expression ')' Statement
+   *  | 'if' '(' Expression ')' Statement 'else' Statement
+   *  ;
+   */
+  IfStatement() {
+    this._eat('if');
+    this._eat('(');
+    const test = this.Expression();
+    this._eat(')');
+    const consequent = this.Statement();
+    const alternate = (this._lookahead && this._lookahead.type === 'else') ? (this._eat('else') && this.Statement()) : null;
+    return {
+      type: 'IfStatement',
+      test,
+      consequent,
+      alternate,
+    };
+  }
+
   /**
    * VaribleStatement
    * : 'let' VaribleDeclarationList ';'
@@ -189,12 +212,12 @@ class Parser {
 
   /**
    * AssignmentExpression
-   *  : AdditiveExpression
+   *  : RelationalExpression
    *  | LeftHandExpression AssignmentOperator AssignmentExpression;  a = 12 或者 a = b = 12;
    *  ;
    */
   AssignmentExpression() {
-    let left = this.AdditiveExpression(); // 因为赋值语句的优先级低于+-运算符，所以+-*/运算符下行
+    let left = this.RelationalExpression(); // 因为赋值语句的优先级低于+-运算符，所以+-*/运算符下行
     if (!this._isAssignmentOperator(this._lookahead.type)) {
       return left;
     }
@@ -249,6 +272,28 @@ class Parser {
       return this._eat('ASSIGNMENT');
     }
     return this._eat('COMPLEX_ASSIGNMENT');
+  }
+
+  /**
+   * RELATIONAL_OPERATOR: >, <, >=, <=
+   *
+   * RelationalExpression
+   *  AdditiveExpression
+   *  | AdditiveExpression RELATIONAL_OPERATOR RelationalExpression
+   *  ; TODO: 未实现
+   */
+  RelationalExpression() {
+    let left = this.AdditiveExpression();
+    if (this._lookahead.type === 'RELATIONAL_OPERATOR') {
+      const operator = this._eat("RELATIONAL_OPERATOR").value;
+      left = {
+        type: 'BinaryExpression',
+        left,
+        operator,
+        right: this.RelationalExpression(),
+      };
+    }
+    return left;
   }
 
   /**
@@ -381,6 +426,7 @@ class Parser {
     }
 
     if (token.type !== tokenType) {
+      console.log('token', token);
       throw new SyntaxError(
         `Unexpected token: "${token.type}", expected: "${tokenType}"`
       );
