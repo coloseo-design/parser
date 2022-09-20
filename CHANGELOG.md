@@ -1,3 +1,12 @@
+## [1.0.8](https://github.com/coloseo-design/parser/compare/v1.0.7...v1.0.8) (2022-09-20)
+
+
+### Features
+
+* 🎸 重构代码和增加逻辑运算 ([8d46955](https://github.com/coloseo-design/parser/commit/8d46955fee8c8c4fab49978ff9f6a57756e03c67))
+
+
+
 ## [1.0.7](https://github.com/coloseo-design/parser/compare/v1.0.6...v1.0.7) (2022-09-19)
 
 
