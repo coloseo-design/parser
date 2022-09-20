@@ -224,6 +224,74 @@ if (x + 1 > 0) {
 y = x + 1 > 0
 ```
 
+### v8的词法
+##### 增加等值运算语句(==, !=)和boolean符号(true, false),以及Null
+
+语法结构:
+Program
+  Statement[]
+    Statement
+      EmptyStatement
+      BlockStatement
+      ExpressionStatement
+        Expression
+          AssignmentExpression
+            EqualityExpression
+              RelationalExpression
+                AdditiveExpression
+                  MultiplicativeExpression
+                    PrimaryExpression
+                      Literal
+                        NumericLiteral
+                        StringLiteral
+                        BooleanLiteral
+                        NullLiteral
+                      ParenthesizedExpression
+                      LeftHandSideExpression
+                        Identifier
+      IfStatement
+        Expression
+        Statement
+示例:
+```javascript
+  x > 0 == true;
+  x > 0 != false;
+```
+
+##### 增加逻辑运算符(&&, ||)
+语法结构:
+Program
+  Statement[]
+    Statement
+      EmptyStatement
+      BlockStatement
+      ExpressionStatement
+        Expression
+          AssignmentExpression
+            LogicalOrExpression
+              LogicalAndExpression
+                EqualityExpression
+                  RelationalExpression
+                    AdditiveExpression
+                      MultiplicativeExpression
+                        PrimaryExpression
+                          Literal
+                            NumericLiteral
+                            StringLiteral
+                            BooleanLiteral
+                            NullLiteral
+                          ParenthesizedExpression
+                          LeftHandSideExpression
+                            Identifier
+      IfStatement
+        Expression
+        Statement
+示例:
+```javascript
+  x > 0 && y < 1;
+  x > 0 || y < 1;
+  x > 0 && x < 5 || y < 1;
+```
 
 
 ### 知识点

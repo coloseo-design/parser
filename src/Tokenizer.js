@@ -34,20 +34,30 @@ const Spec = [
   [/^\bif\b/, 'if'],
   [/^\belse\b/, 'else'],
 
+  /** 布尔值 */
+  [/^\btrue\b/, 'true'],
+  [/^\bfalse\b/, 'false'],
+
   /** 变量名称 */
   [/^\w+/, 'IDENTIFIER'], // 与Number语句重合，必须放在NUMBE之后
+
+  /** 等值计算 必须放在赋值语句上面: ==, != */
+  [/^[=!]=/, 'EQUALITY_OPERATOR'],
 
   /** 赋值语句 =, +=, -=, *=, /= */
   [/^=/, 'ASSIGNMENT'],
   [/^[\+\-\*\/]=/, 'COMPLEX_ASSIGNMENT'],
 
-  /** 关系运算符 >,<,==,>=,<= */
+  /** 关系运算符 >, <, >=, <= */
   [/^[><]=?/, 'RELATIONAL_OPERATOR'],
+
+  /** 逻辑运算符 */
+  [/^&&/, 'LOGICAL_AND'], // and
+  [/^\|\|/, 'LOGICAL_OR'], // or
 
   /** 二元操作符号 必须在赋值之后 */
   [/^[+\-]/, 'ADDITIVE_OPERATOR'], // +-
   [/^[*\/]/, 'MULTIPLICATIVE_OPERATOR'], // */
-
 ];
 
 /**

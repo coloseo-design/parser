@@ -212,12 +212,12 @@ class Parser {
 
   /**
    * AssignmentExpression
-   *  : RelationalExpression
+   *  : LogicalOrExpression
    *  | LeftHandExpression AssignmentOperator AssignmentExpression;  a = 12 或者 a = b = 12;
    *  ;
    */
   AssignmentExpression() {
-    let left = this.RelationalExpression(); // 因为赋值语句的优先级低于+-运算符，所以+-*/运算符下行
+    let left = this.LogicalOrExpression(); // 因为赋值语句的优先级低于+-运算符，所以+-*/运算符下行
     if (!this._isAssignmentOperator(this._lookahead.type)) {
       return left;
     }
@@ -273,6 +273,41 @@ class Parser {
     }
     return this._eat('COMPLEX_ASSIGNMENT');
   }
+  /**
+   * LogicalOperator: ||
+   *  x || y
+   *
+   * LogicalOrExpression
+   *  : LogicalAndExpression
+   *  | LogicalAndExpression 'LOGICAL_OR' LogicalOrExpression
+   */
+  LogicalOrExpression() {
+    return this._LogicalExpression('LogicalAndExpression', 'LOGICAL_OR');
+  }
+
+  /**
+   * LogicalOperator: &&
+   *  x && y
+   *
+   * LogicalAndExpression
+   *  :EqualityExpression
+   *  | EqualityExpression 'LOGICAL_AND' LogicalAndExpression
+   */
+  LogicalAndExpression() {
+    return this._LogicalExpression('EqualityExpression', 'LOGICAL_AND');
+  }
+
+  /**
+   * EQUALITY_OPERATOR: ==, !=
+   *
+   * EqualityExpression:
+   *  : RelationalExpression
+   *  | RelationalExpression EQUALITY_OPERATOR EqualityExpression
+   *
+   */
+  EqualityExpression() {
+    return this._BinaryExpression('RelationalExpression', 'EQUALITY_OPERATOR');
+  }
 
   /**
    * RELATIONAL_OPERATOR: >, <, >=, <=
@@ -283,60 +318,59 @@ class Parser {
    *  ; TODO: 未实现
    */
   RelationalExpression() {
-    let left = this.AdditiveExpression();
-    if (this._lookahead.type === 'RELATIONAL_OPERATOR') {
-      const operator = this._eat("RELATIONAL_OPERATOR").value;
+    return this._BinaryExpression('AdditiveExpression', 'RELATIONAL_OPERATOR');
+  }
+
+  /**
+   * Additive_Operator: +,-
+   * a+b, a-b
+   *
+   * AdditiveExpression
+   *   : MultiplicativeExpression
+   *   | AdditiveExpression Additive_Operator MultiplicativeExpression
+   */
+  AdditiveExpression() {
+    return this._BinaryExpression('MultiplicativeExpression', 'ADDITIVE_OPERATOR');
+  }
+
+  /**
+   * MULTIPLICATIVE_OPERATOR: *,/
+   * a*b, a/b
+   *
+   * MultiplicativeExpression
+   *  : PrimaryExpression
+   *  | MultiplicativeExpression MULTIPLICATIVE_OPERATOR PrimaryExpression
+   *  ;
+   */
+  MultiplicativeExpression() {
+    return this._BinaryExpression('PrimaryExpression', 'MULTIPLICATIVE_OPERATOR');
+  }
+
+  _LogicalExpression(builderName, tokenType) {
+    let left = this[builderName]();
+    while (this._lookahead.type === tokenType) {
+      const operator = this._eat(tokenType).value;
+      const right = this[builderName]();
+      left = {
+        type: 'LogicalExpression',
+        left,
+        operator,
+        right,
+      };
+    }
+    return left;
+  }
+
+  _BinaryExpression(builderName, tokenType) {
+    let left = this[builderName]();
+    while (this._lookahead.type === tokenType) {
+      const operator = this._eat(tokenType).value;
+      const right = this[builderName]();
       left = {
         type: 'BinaryExpression',
         left,
         operator,
-        right: this.RelationalExpression(),
-      };
-    }
-    return left;
-  }
-
-  /**
-   * AdditiveExpression
-   *   : Literal
-   *   | AdditiveExpression Additive_Operator Literal
-   *
-   *  需要兼容/*高优先级
-   * AdditiveExpression
-   *   : MultiplicativeExpression
-   *   | AdditiveExpression Additive_Operator MultiplicativeExpression ->  MultiplicativeExpression Additive_Operator MultiplicativeExpression
-   */
-  AdditiveExpression() {
-    let left = this.MultiplicativeExpression(); // 因为*/运算符优先级高于+-，所以下行
-    while (this._lookahead.type === "ADDITIVE_OPERATOR") {
-      const operator = this._eat("ADDITIVE_OPERATOR").value; // +-
-      const right = this.MultiplicativeExpression();
-      left = {
-        left,
-        operator,
         right,
-        type: "BinaryExpression",
-      };
-    }
-    return left;
-  }
-
-  /**
-   * MultiplicativeExpression
-   *  : PrimaryExpression
-   *  | MultiplicativeExpression MULTIPLICATIVE_OPERATOR PrimaryExpression -> PrimaryExpression MULTIPLICATIVE_OPERATOR PrimaryExpression
-   *  ;
-   */
-  MultiplicativeExpression() {
-    let left = this.PrimaryExpression(); // 括号，字面量的优先级高于乘除的优先级，所以继续下行
-    while (this._lookahead.type === "MULTIPLICATIVE_OPERATOR") {
-      const operator = this._eat("MULTIPLICATIVE_OPERATOR").value;
-      let right = this.PrimaryExpression();
-      left = {
-        left,
-        operator,
-        right,
-        type: "BinaryExpression",
       };
     }
     return left;
@@ -348,8 +382,10 @@ class Parser {
    * ;
    */
   PrimaryExpression() {
-    const tokenType = this._lookahead.type
-    if (tokenType === 'STRING' || tokenType === "NUMBER") {
+    const tokenType = this._lookahead.type;
+    // 是否为Literal
+    const literalTokenTypes = ['STRING', 'NUMBER', 'true', 'false', 'null'];
+    if (literalTokenTypes.includes(tokenType)) {
       return this.Literal();
     }
 
@@ -375,6 +411,8 @@ class Parser {
    * Literal
    * : NumericLiteral
    * | StringLiteral
+   * | BooleanLiteral
+   * | NullLiteral
    * ;
    */
   Literal() {
@@ -384,6 +422,12 @@ class Parser {
         return this.NumericLiteral();
       case "STRING":
         return this.StringLiteral();
+      case "true":
+        return this.BooleanLiteral(true);
+      case "false":
+        return this.BooleanLiteral(false);
+      case "null":
+        return this.NullLiteral();
     }
     console.log('token--', token);
     throw new SyntaxError(`Literal: unexpected literal product`);
@@ -414,6 +458,31 @@ class Parser {
     };
   }
 
+  /**
+   * BooleanLiteral
+   *  : true
+   *  | false
+   *  ;
+   */
+  BooleanLiteral(value) {
+    this._eat(value ? 'true' : 'false');
+    return {
+      type: "BooleanLiteral",
+      value,
+    };
+  }
+  /**
+   * NullLiteral
+   *  : null
+   *  ;
+   */
+  NullLiteral() {
+    this._eat('null');
+    return {
+      type: "NullLiteral",
+      value: null,
+    };
+  }
   /**
    * Expects a token of given type
    */
