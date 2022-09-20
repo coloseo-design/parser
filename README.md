@@ -228,6 +228,7 @@ y = x + 1 > 0
 ##### 增加等值运算语句(==, !=)和boolean符号(true, false),以及Null
 
 语法结构:
+```javascript
 Program
   Statement[]
     Statement
@@ -252,6 +253,8 @@ Program
       IfStatement
         Expression
         Statement
+```
+
 示例:
 ```javascript
   x > 0 == true;
@@ -260,6 +263,7 @@ Program
 
 ##### 增加逻辑运算符(&&, ||)
 语法结构:
+```javascript
 Program
   Statement[]
     Statement
@@ -285,12 +289,13 @@ Program
                             Identifier
       IfStatement
         Expression
-        Statement
+        Statement```
 示例:
 ```javascript
   x > 0 && y < 1;
   x > 0 || y < 1;
   x > 0 && x < 5 || y < 1;
+
 ```
 
 
