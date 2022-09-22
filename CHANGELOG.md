@@ -1,3 +1,17 @@
+## [1.0.9](https://github.com/coloseo-design/parser/compare/v1.0.8...v1.0.9) (2022-09-22)
+
+
+### Bug Fixes
+
+* 🐛 格式化README.md文件 ([06ffd21](https://github.com/coloseo-design/parser/commit/06ffd218cfb37882b74acfb33723bafec60bb8fe))
+
+
+### Features
+
+* 🎸 增加一元表达式UnaryExpression ([7c54ebe](https://github.com/coloseo-design/parser/commit/7c54ebe4850b7fdc69f3ab9ddddd0601c35101b4))
+
+
+
 ## [1.0.8](https://github.com/coloseo-design/parser/compare/v1.0.7...v1.0.8) (2022-09-20)
 
 
