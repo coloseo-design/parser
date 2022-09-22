@@ -1,3 +1,12 @@
+## [1.0.10](https://github.com/coloseo-design/parser/compare/v1.0.9...v1.0.10) (2022-09-22)
+
+
+### Features
+
+* 🎸 增加迭代语句while,do-while,for语句，增加序列表达式SequenceExpression ([2cd459e](https://github.com/coloseo-design/parser/commit/2cd459e624cb6932c052320dc062564d034a48ec))
+
+
+
 ## [1.0.9](https://github.com/coloseo-design/parser/compare/v1.0.8...v1.0.9) (2022-09-22)
 
 
