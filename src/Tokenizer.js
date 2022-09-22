@@ -54,6 +54,7 @@ const Spec = [
   /** 逻辑运算符 */
   [/^&&/, 'LOGICAL_AND'], // and
   [/^\|\|/, 'LOGICAL_OR'], // or
+  [/^!/, 'LOGICAL_NOT'], // not
 
   /** 二元操作符号 必须在赋值之后 */
   [/^[+\-]/, 'ADDITIVE_OPERATOR'], // +-

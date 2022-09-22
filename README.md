@@ -205,6 +205,12 @@ Program
       IfStatement
         Expression
         Statement
+      
+      VaribleStatement                           
+        VaribleDeclaration             
+          Identifier                                 
+          Initializor                               
+            AssignmentExpression
 
 ```
 示例：
@@ -253,6 +259,11 @@ Program
       IfStatement
         Expression
         Statement
+      VaribleStatement                           
+        VaribleDeclaration             
+          Identifier                                 
+          Initializor                               
+            AssignmentExpression
 ```
 
 示例:
@@ -289,7 +300,15 @@ Program
                             Identifier
       IfStatement
         Expression
-        Statement```
+        Statement
+      VaribleStatement                           
+        VaribleDeclaration             
+          Identifier                                 
+          Initializor                               
+            AssignmentExpression
+
+```
+
 示例:
 ```javascript
   x > 0 && y < 1;
@@ -297,6 +316,57 @@ Program
   x > 0 && x < 5 || y < 1;
 
 ```
+
+
+### v9的词法
+##### 增加一元表达式
+
+语法结构:
+```javascript
+// 一元表达式拥有高优先级，并且能实现递归组合!!x, --x, ++x,
+Program
+  StatementList
+    Statement
+      EmptyStatement
+      BlockStatement
+      ExpressionStatement
+        AssignmentExpression
+          LogicalOrExpression
+            LogicalAndExpression
+              AdditiveExpression
+                MultiplicativeExpression
+                  UnaryExpression
+                    LeftHandSideExpression
+                      PrimaryExpression
+                        Literal
+                            NumericLiteral
+                            StringLiteral
+                            BooleanLiteral
+                            NullLiteral
+                        Identifier
+                        ParenthesizedExpression // '(' Expression ')'
+                        LeftHandSideExpression
+      IfStatement // 'if' '(' Expression ')' Statement 'else' Statement;
+        Expression
+        Statement 
+      VaribleStatement                           
+        VaribleDeclaration             
+          Identifier                                 
+          Initializor                               
+            AssignmentExpression
+
+```
+
+代码示例：
+```javascript
+!x;
+!!x;
++y;
+++y;
+```
+
+
+
 
 
 ### 知识点

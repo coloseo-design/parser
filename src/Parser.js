@@ -230,12 +230,33 @@ class Parser {
   }
 
   /**
+   * UnaryExpression
+   *  : LeftHandSideExpression
+   *  | ADDITIVE_OPERATOR UnaryExpression
+   *  | LOGICAL_NOT UnaryExpression
+   *  ;
+   */
+
+  UnaryExpression() {
+    const unaryTokenTypes = ['ADDITIVE_OPERATOR', 'MULTIPLICATIVE_OPERATOR', 'LOGICAL_NOT'];
+    if (unaryTokenTypes.includes(this._lookahead.type)) {
+      const operator = this._eat(this._lookahead.type).value;
+      return {
+        type: 'UnaryExpression',
+        operator,
+        argument: this.UnaryExpression(), // --x; !!x  ++x
+      };
+    }
+    return this.LeftHandSideExpression();
+  }
+
+  /**
    * LeftHandExpression
-   *  : Identifier
+   *  : PrimaryExpression
    *  ;
    */
    LeftHandSideExpression() {
-    return this.Identifier();
+    return this.PrimaryExpression();
   }
 
   /**
@@ -338,13 +359,14 @@ class Parser {
    * a*b, a/b
    *
    * MultiplicativeExpression
-   *  : PrimaryExpression
-   *  | MultiplicativeExpression MULTIPLICATIVE_OPERATOR PrimaryExpression
+   *  : UnaryExpression
+   *  | MultiplicativeExpression MULTIPLICATIVE_OPERATOR UnaryExpression
    *  ;
    */
   MultiplicativeExpression() {
-    return this._BinaryExpression('PrimaryExpression', 'MULTIPLICATIVE_OPERATOR');
+    return this._BinaryExpression('UnaryExpression', 'MULTIPLICATIVE_OPERATOR');
   }
+
 
   _LogicalExpression(builderName, tokenType) {
     let left = this[builderName]();
@@ -378,7 +400,9 @@ class Parser {
 
   /**
    * PrimaryExpression
-   * : Literal | ParenthesizedExpression | LeftHandSideExpression
+   * : Literal
+   * | ParenthesizedExpression
+   * | Identifier
    * ;
    */
   PrimaryExpression() {
@@ -393,7 +417,11 @@ class Parser {
       return this.ParenthesizedExpression(); // 括号中包含一个Expression
     }
 
-    return this.LeftHandSideExpression(); // 返回Identifier符号=
+    if (tokenType === 'IDENTIFIER') {
+      return this.Identifier();
+    }
+
+    return this.LeftHandSideExpression();
   }
 
   /**
