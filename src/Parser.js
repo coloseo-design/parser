@@ -1,5 +1,5 @@
 /**
- * parser: recurisve descent implementation;
+ * parser: recursive descent implementation;
  */
 const { Tokenizer } = require("./Tokenizer");
 
@@ -21,7 +21,7 @@ class Parser {
     this._string = string;
     this._tokenizer.init(this._string);
     // prime the tokenizer to obtain the first
-    // token which is our lookhead. the lookhead
+    // token which is our lookahead. the lookahead
     // used fo predictive parsing.
     this._lookahead = this._tokenizer.getNextToken();
 
@@ -30,7 +30,7 @@ class Parser {
 
   /**
    * Main entry point
-   * progrma:
+   * program:
    *  :StatementList
    */
   Program() {
@@ -66,7 +66,7 @@ class Parser {
 
   /**
    * Statement
-   *  :ExpressionStatement ｜ BlockStatement | EmptyStatement ｜ VaribleStatenent | IfStatement
+   *  :ExpressionStatement ｜ BlockStatement | EmptyStatement ｜ VariableStatement | IfStatement
    *  ;
    */
   Statement() {
@@ -78,11 +78,104 @@ class Parser {
       case ";":
         return this.EmptyStatement();
       case "let":
-        return this.VaribleStatement();
+        return this.VariableStatement();
+      case "do":
+      case "while":
+      case "for":
+        return this.IterationStatement();
       default:
         return this.ExpressionStatement();
     }
   }
+
+  IterationStatement() {
+    const tokenType = this._lookahead.type;
+    if (tokenType === 'while') {
+      return this.WhileStatement();
+    }
+    if (tokenType === 'do') {
+      return this.DoWhileStatement();
+    }
+    if (tokenType === 'for') {
+      return this.ForStatement();
+    }
+  }
+
+  /**
+   * WhileStatement
+   * : 'while' '(' Expression ')' Statement
+   * ;
+   */
+  WhileStatement() {
+    this._eat('while');
+    this._eat('(')
+    const test = this.Expression();
+    this._eat(')')
+    const body = this.Statement();
+    return {
+      type: 'WhileStatement',
+      test,
+      body,
+    }
+  }
+  /**
+   * DoWhileStatement
+   *  : 'do' Statement 'while' '(' Expression ')'
+   *  ;
+   */
+   DoWhileStatement() {
+    this._eat('do');
+    const body = this.Statement();
+    this._eat('while');
+    this._eat('(');
+    const test = this.Expression();
+    this._eat(')')
+    return {
+      type: 'DoWhileStatement',
+      body,
+      test,
+    };
+   }
+
+  /**
+   * ForStatement:
+   *  : 'for' '(' OptionalInitExpression ';' OptionalTest ';' OptionalUpdate  ')' Statement
+   *  ;
+   */
+  ForStatement() {
+
+    this._eat('for');
+    this._eat('(')
+    const init = this._lookahead.type === ';' ? null : this.ForStatementInit();
+    this._eat(';')
+    const test = this._lookahead.type === ';' ? null : this.Expression();
+    this._eat(';');
+    const update = this._lookahead.type === ';' ? null : this.Expression();
+    this._eat(')');
+
+    const body = this.Statement();
+
+    return {
+      type: 'ForStatement',
+      init,
+      test,
+      update,
+      body,
+    };
+  }
+  /**
+   * ForStatementInit
+   *  : VariableDeclaration
+   *  | Expression
+   *  ;
+   */
+  ForStatementInit() {
+    if (this._lookahead.type === 'let') {
+      return this._VariableStatement();
+    }
+    return this.Expression();
+  }
+
   /**
    * IfStatement
    *  : 'if' '(' Expression ')' Statement
@@ -104,56 +197,61 @@ class Parser {
     };
   }
 
+  _VariableStatement() {
+    this._eat('let'); // 消费掉let，tokenizer继续
+    const declarations = this.VariableDeclarationList();
+    return {
+      type: 'VariableStatement',
+      declarations,
+    };
+  }
+
   /**
-   * VaribleStatement
-   * : 'let' VaribleDeclarationList ';'
+   * VariableStatement
+   * : 'let' VariableDeclarationList ';'
    * ;
    * @returns
    */
-  VaribleStatement() {
-    this._eat('let'); // 消费掉let，tokenizer继续
-    const declarations = this.VaribleDeclarationList();
+  VariableStatement() {
+    const variableStatement = this._VariableStatement();
     this._eat(';')
-    return {
-      type: 'VaribleStatement',
-      declarations,
-    }
+    return variableStatement;
   }
   /**
-   * VaribleDeclarationList
-   * : VaribleDeclaration | VaribleDeclarationList ',' VaribleDeclaration
+   * VariableDeclarationList
+   * : VariableDeclaration | VariableDeclarationList ',' VariableDeclaration
    * ;
    */
-  VaribleDeclarationList() {
+  VariableDeclarationList() {
     const declarations = [];
     do {
-      declarations.push(this.VaribleDeclaration());
+      declarations.push(this.VariableDeclaration());
     } while(this._lookahead.type === ',' && this._eat(','));
     return declarations;
   }
 
   /**
-   * VaribleDeclaration
-   * : Identifier OptionalVaribleInitializer
+   * VariableDeclaration
+   * : Identifier OptionalVariableInitializer
    * ;
    */
-  VaribleDeclaration() {
+  VariableDeclaration() {
     const id = this.Identifier();
     const init = this._lookahead.type === 'ASSIGNMENT'
-      ? this.VaribleInitializer()
+      ? this.VariableInitializer()
       : null;
-    const varible = {
-      type: 'VaribleDeclaration',
+    const variable = {
+      type: 'VariableDeclaration',
       id,
       init,
     };
-    return varible;
+    return variable;
   }
   /**
-   * VaribleInitializer
+   * VariableInitializer
    * : 'ASSIGNMENT'
    */
-  VaribleInitializer() {
+  VariableInitializer() {
     this._eat('ASSIGNMENT');
     const expression = this.AssignmentExpression();
     // this._eat(';')
@@ -204,10 +302,22 @@ class Parser {
   /**
    * Expression
    *   : AssignmentExpression
+   *   | AssignmentExpression ',' AssignmentExpression
    *   ;
    */
   Expression() {
-    return this.AssignmentExpression();
+    const expressions = [];
+    do {
+      const item = this.AssignmentExpression();
+      expressions.push(item);
+    } while (this._lookahead.type === ',' && this._eat(','))
+    if (expressions.length > 1) {
+      return {
+        type: 'SequenceExpression',
+        expressions,
+      };
+    }
+    return expressions.shift();
   }
 
   /**
@@ -264,10 +374,10 @@ class Parser {
    * @returns
    */
   Identifier() {
-    const identifer = this._eat('IDENTIFIER');
+    const identifier = this._eat('IDENTIFIER');
     return {
       type: 'Identifier',
-      name: identifer.value,
+      name: identifier.value,
     }
   }
 
@@ -400,10 +510,10 @@ class Parser {
 
   /**
    * PrimaryExpression
-   * : Literal
-   * | ParenthesizedExpression
-   * | Identifier
-   * ;
+   *  : Literal
+   *  | ParenthesizedExpression
+   *  | Identifier
+   *  ;
    */
   PrimaryExpression() {
     const tokenType = this._lookahead.type;
@@ -420,14 +530,14 @@ class Parser {
     if (tokenType === 'IDENTIFIER') {
       return this.Identifier();
     }
-
-    return this.LeftHandSideExpression();
+    return null;
+    // return this.LeftHandSideExpression();
   }
 
   /**
    * ParenthesizedExpression
-   * : '(' Expression ')
-   * ;
+   *  : '(' Expression ')
+   *  ;
    */
   ParenthesizedExpression() {
     this._eat("(");
@@ -437,11 +547,11 @@ class Parser {
   }
   /**
    * Literal
-   * : NumericLiteral
-   * | StringLiteral
-   * | BooleanLiteral
-   * | NullLiteral
-   * ;
+   *  : NumericLiteral
+   *  | StringLiteral
+   *  | BooleanLiteral
+   *  | NullLiteral
+   *  ;
    */
   Literal() {
     const token = this._lookahead;

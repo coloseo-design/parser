@@ -7,13 +7,15 @@ const tests = [
   require('./block-test'),
   require('./empty-statement-test'),
   require('./math-test'),
-  require('./assigment-test'),
-  require('./varible-test'),
+  require('./assignment-test'),
+  require('./variable-test'),
   require('./if-test'),
   require('./relational-test'),
   require('./equality-test'),
   require('./logical-test'),
   require('./unary-test'),
+  require('./while-test'),
+  require('./for-test'),
 ];
 
 const parser = new Parser();

@@ -3,10 +3,10 @@ module.exports = test => {
     type: 'Program',
     body: [
       {
-        type: 'VaribleStatement',
+        type: 'VariableStatement',
         declarations: [
           {
-            type: 'VaribleDeclaration',
+            type: 'VariableDeclaration',
             id: {
               type: 'Identifier',
               name: 'a',
@@ -25,10 +25,10 @@ module.exports = test => {
     type: 'Program',
     body: [
       {
-        type: 'VaribleStatement',
+        type: 'VariableStatement',
         declarations: [
           {
-            type: 'VaribleDeclaration',
+            type: 'VariableDeclaration',
             id: {
               type: 'Identifier',
               name: 'a',
@@ -44,10 +44,10 @@ module.exports = test => {
     type: 'Program',
     body: [
       {
-        type: 'VaribleStatement',
+        type: 'VariableStatement',
         declarations: [
           {
-            type: 'VaribleDeclaration',
+            type: 'VariableDeclaration',
             id: {
               type: 'Identifier',
               name: 'a',
@@ -55,7 +55,7 @@ module.exports = test => {
             init: null,
           },
           {
-            type: 'VaribleDeclaration',
+            type: 'VariableDeclaration',
             id: {
               type: 'Identifier',
               name: 'b',
@@ -71,10 +71,10 @@ module.exports = test => {
     type: 'Program',
     body: [
       {
-        type: 'VaribleStatement',
+        type: 'VariableStatement',
         declarations: [
           {
-            type: 'VaribleDeclaration',
+            type: 'VariableDeclaration',
             id: {
               type: 'Identifier',
               name: 'a',
@@ -82,7 +82,7 @@ module.exports = test => {
             init: null,
           },
           {
-            type: 'VaribleDeclaration',
+            type: 'VariableDeclaration',
             id: {
               type: 'Identifier',
               name: 'b',
@@ -101,10 +101,10 @@ module.exports = test => {
     type: 'Program',
     body: [
       {
-        type: 'VaribleStatement',
+        type: 'VariableStatement',
         declarations: [
           {
-            type: 'VaribleDeclaration',
+            type: 'VariableDeclaration',
             id: {
               type: 'Identifier',
               name: 'a',
@@ -115,7 +115,7 @@ module.exports = test => {
             },
           },
           {
-            type: 'VaribleDeclaration',
+            type: 'VariableDeclaration',
             id: {
               type: 'Identifier',
               name: 'b',
@@ -152,10 +152,10 @@ module.exports = test => {
               },
               type: 'AssignmentExpression'
             },
-            type: 'VaribleDeclaration'
+            type: 'VariableDeclaration'
           }
         ],
-        type: 'VaribleStatement',
+        type: 'VariableStatement',
       },
     ],
   });

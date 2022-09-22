@@ -142,10 +142,10 @@ Program:
                   ParenthesizedExpression  ---|       |
                   LeftHandSideExpression              |
                     Identifier                        |
-      VaribleStatement:                               |
-        VaribleDeclaration:                           |
+      VariableStatement                               |
+        VariableDeclaration                           |
           Identifier                                  |
-          Initializor                                 |
+          Initializer                                 |
             AssignmentExpression   -------------------|
 ```
 示例
@@ -206,10 +206,10 @@ Program
         Expression
         Statement
       
-      VaribleStatement                           
-        VaribleDeclaration             
+      VariableStatement                           
+        VariableDeclaration             
           Identifier                                 
-          Initializor                               
+          Initializer                               
             AssignmentExpression
 
 ```
@@ -259,10 +259,10 @@ Program
       IfStatement
         Expression
         Statement
-      VaribleStatement                           
-        VaribleDeclaration             
+      VariableStatement                           
+        VariableDeclaration             
           Identifier                                 
-          Initializor                               
+          Initializer                               
             AssignmentExpression
 ```
 
@@ -301,10 +301,10 @@ Program
       IfStatement
         Expression
         Statement
-      VaribleStatement                           
-        VaribleDeclaration             
+      VariableStatement                           
+        VariableDeclaration             
           Identifier                                 
-          Initializor                               
+          Initializer                               
             AssignmentExpression
 
 ```
@@ -349,10 +349,10 @@ Program
       IfStatement // 'if' '(' Expression ')' Statement 'else' Statement;
         Expression
         Statement 
-      VaribleStatement                           
-        VaribleDeclaration             
+      VariableStatement                           
+        VariableDeclaration             
           Identifier                                 
-          Initializor                               
+          Initializer                               
             AssignmentExpression
 
 ```
@@ -365,6 +365,86 @@ Program
 ++y;
 ```
 
+### v10的词法
+##### 增加while，do-while, for语句
+
+语法结构:
+```javascript
+
+Program
+  StatementList
+    Statement
+      EmptyStatement
+      BlockStatement
+      ExpressionStatement
+        SequenceExpression // a=1, c = 12;
+        AssignmentExpression
+          LogicalOrExpression
+            LogicalAndExpression
+              AdditiveExpression
+                MultiplicativeExpression
+                  UnaryExpression
+                    LeftHandSideExpression
+                      PrimaryExpression
+                        Literal
+                            NumericLiteral
+                            StringLiteral
+                            BooleanLiteral
+                            NullLiteral
+                        Identifier
+                        ParenthesizedExpression // '(' Expression ')'
+                        LeftHandSideExpression
+      IfStatement // 'if' '(' Expression ')' Statement 'else' Statement;
+        Expression
+        Statement 
+      WhileStatement // 'while' '(' Expression ')' Statement;
+        Expression // test
+        Statement  // body
+      DoWhileStatement // 'do' Statement 'while' '(' Expression ')';
+        Expression // test
+        Statement  // body
+      ForStatement // 'for' '(' [Expression] ';' [Expression] ';' [Expression] ')' Statement;
+        Expression // init|test|update
+        Statement  // body
+      VariableStatement                           
+        VariableDeclaration             
+          Identifier                                 
+          Initializer                               
+            AssignmentExpression
+
+```
+
+代码示例：
+```javascript
+  while(x > 0) {
+    x += 1;
+  }
+  // do-while
+  do {
+    x += 1;
+  } while(x > 0)
+
+  for(let i = 0, y = 10; i <= 10; i += 1) {
+    x += 12;
+  }
+
+  for(let i = 0, y = 10; i <= 10; i += 1) {
+    x += i;
+  }
+  // 缺省init
+  for(; i <= 10; i += 1) {
+    x += i;
+  }
+
+  // 无限循环
+  for(;;) {
+    x += i;
+  }
+  // SequenceExpression
+  for(i = 0, y = 10; i <= 10; i += 1) {
+    x += i;
+  }
+```
 
 
 

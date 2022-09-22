@@ -29,6 +29,9 @@ const Spec = [
 
   /** 定义关键字： 关键字的匹配优先级高于IDENTIFIER，必须放在IDENTIFIER前 */
   [/^\blet\b/, 'let'], // \b关键字\b,让独立的关键字被识别
+  [/^\bdo\b/, 'do'], // do-while循环申明
+  [/^\bwhile\b/, 'while'], // while循环申明
+  [/^\bfor\b/, 'for'], // while循环申明
 
   /** if-else  */
   [/^\bif\b/, 'if'],
