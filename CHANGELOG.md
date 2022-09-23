@@ -1,3 +1,12 @@
+## [1.0.11](https://github.com/coloseo-design/parser/compare/v1.0.10...v1.0.11) (2022-09-23)
+
+
+### Features
+
+* 🎸 增加函数申明和ReturnStatement ([323eece](https://github.com/coloseo-design/parser/commit/323eece7c08eae84b5e31577f327c23f0594e1c5))
+
+
+
 ## [1.0.10](https://github.com/coloseo-design/parser/compare/v1.0.9...v1.0.10) (2022-09-22)
 
 
