@@ -1,3 +1,12 @@
+## [1.0.12](https://github.com/coloseo-design/parser/compare/v1.0.11...v1.0.12) (2022-09-23)
+
+
+### Features
+
+* 🎸 增加成员访问表达式 ([1712c4f](https://github.com/coloseo-design/parser/commit/1712c4f958780acd21545c5e5932cbbdcfbf3143))
+
+
+
 ## [1.0.11](https://github.com/coloseo-design/parser/compare/v1.0.10...v1.0.11) (2022-09-23)
 
 
