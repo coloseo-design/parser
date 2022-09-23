@@ -18,6 +18,7 @@ const tests = [
   require('./for-test'),
   require('./function-test'),
   require('./member-test'),
+  require('./call-test'),
 ];
 
 const parser = new Parser();

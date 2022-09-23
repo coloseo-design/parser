@@ -107,9 +107,7 @@ class Parser {
   FunctionDeclaration() {
     this._eat('function');
     const id = this.Identifier();
-    this._eat('(');
     const params = this.FunctionParamList();
-    this._eat(')')
     const body = this.BlockStatement();
     return {
       type: 'FunctionDeclaration',
@@ -126,10 +124,14 @@ class Parser {
    */
   FunctionParamList() {
     const params = [];
-    if (this._lookahead.type === ')') return [];
-    do {
-      params.push(this.Identifier());
-    } while (this._lookahead.type === ',' && this._eat(','))
+    this._eat('(');
+
+    if (this._lookahead.type !== ')') {
+      do {
+        params.push(this.Identifier());
+      } while (this._lookahead.type === ',' && this._eat(','))
+    }
+    this._eat(')')
     return params;
   }
 
@@ -432,7 +434,62 @@ class Parser {
    *  ;
    */
   LeftHandSideExpression() {
-    return this.MemberExpression();
+    return this._CallExpression();
+  }
+
+  /**
+   *  CallExpression
+   *  : MemberExpression
+   *  | CallExpression
+   *  ;
+   */
+  _CallExpression() {
+    const member = this.MemberExpression();
+    if (this._lookahead.type === '(') {
+      return this.CallExpression(member);
+    }
+    return member;
+  }
+
+  /**
+   *  CallExpression
+   *
+   */
+  CallExpression(callee) {
+    let expression = {
+      type: 'CallExpression',
+      callee,
+      arguments: this.Arguments(),
+    };
+    // a()();
+    if (this._lookahead.type === '(') {
+      expression = this.CallExpression(expression);
+    }
+    return expression;
+  }
+  /**
+   * Arguments
+   * : '(' [ArgumentList] ')'
+   * ;
+   */
+  Arguments() {
+    this._eat('(');
+    const args = this._lookahead.type === ')' ? [] : this.ArgumentList();
+    this._eat(')');
+    return args;
+  }
+
+  /**
+   * ArgumentList
+   * : ArgumentList ',' AssignmentExpression
+   * ;
+   */
+  ArgumentList() {
+    const args = [];
+    do {
+      args.push(this.AssignmentExpression());
+    } while (this._lookahead.type === ',' && this._eat(','))
+    return args;
   }
 
   /**
