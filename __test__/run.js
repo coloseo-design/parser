@@ -17,6 +17,7 @@ const tests = [
   require('./while-test'),
   require('./for-test'),
   require('./function-test'),
+  require('./member-test'),
 ];
 
 const parser = new Parser();

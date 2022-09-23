@@ -512,6 +512,72 @@ Program
   }
 ```
 
+### v12的词法
+##### 增加对象成员访问表达式.和[]
+
+语法示例:
+
+```javascript
+
+
+Program
+  StatementList
+    Statement
+      EmptyStatement
+      BlockStatement
+      ExpressionStatement
+        SequenceExpression // a=1, c = 12;
+        AssignmentExpression
+          LogicalOrExpression
+            LogicalAndExpression
+              AdditiveExpression
+                MultiplicativeExpression
+                  UnaryExpression
+                    LeftHandSideExpression
+                      MemberExpression
+                        Expression // MemberExpression '[' Expression ']'
+                        Identifier // MemberExpression '.' Identifier
+                        PrimaryExpression
+                          Literal
+                              NumericLiteral
+                              StringLiteral
+                              BooleanLiteral
+                              NullLiteral
+                          Identifier
+                          ParenthesizedExpression // '(' Expression ')'
+                          LeftHandSideExpression
+      IfStatement // 'if' '(' Expression ')' Statement 'else' Statement;
+        Expression
+        Statement 
+      WhileStatement // 'while' '(' Expression ')' Statement;
+        Expression // test
+        Statement  // body
+      DoWhileStatement // 'do' Statement 'while' '(' Expression ')';
+        Expression // test
+        Statement  // body
+      ForStatement // 'for' '(' [Expression] ';' [Expression] ';' [Expression] ')' Statement;
+        Expression // init|test|update
+        Statement  // body
+      VariableStatement                           
+        VariableDeclaration             
+          Identifier                                 
+          Initializer                               
+            AssignmentExpression
+      ReturnStatement // 'return' [Expression] ';'
+        Expression
+      FunctionDeclaration // 'function' Identifier '(' FunctionParamList ')' BlockStatement
+        Identifier 
+        BlockStatement
+
+```
+代码示例：
+```javascript
+x.y;
+x.y[z];
+x.y = 12;
+x[y] = 12;
+x['y'] = 12;
+```
 
 
 

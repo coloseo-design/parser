@@ -37,6 +37,11 @@ const Spec = [
   [/^\bfunction\b/, 'function'],
   [/^\breturn\b/, 'return'],
 
+  /** 对象操作  */
+  [/^\./, '.'],
+  [/^\[/, '['],
+  [/^\]/, ']'],
+
   /** if-else  */
   [/^\bif\b/, 'if'],
   [/^\belse\b/, 'else'],

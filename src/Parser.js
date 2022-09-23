@@ -428,11 +428,49 @@ class Parser {
 
   /**
    * LeftHandExpression
-   *  : PrimaryExpression
+   *  : MemberExpression
    *  ;
    */
-   LeftHandSideExpression() {
-    return this.PrimaryExpression();
+  LeftHandSideExpression() {
+    return this.MemberExpression();
+  }
+
+  /**
+   * x.y ｜ x.y.x | x.y[a.b]
+   *
+   * MemberExpression
+   *  : PrimaryExpression
+   *  | MemberExpression '.' Identifier
+   *  | MemberExpression '[' Expression ']'
+   *  ;
+   */
+  MemberExpression() {
+    let object = this.PrimaryExpression();
+    const objectAccessTokenType = ['.', '['];
+    while (objectAccessTokenType.includes(this._lookahead.type)) {
+      if (this._lookahead.type === '.') {
+        this._eat('.');
+        object = {
+          type: 'MemberExpression',
+          object,
+          compute: false, // whether computed property
+          property: this.Identifier(),
+        };
+      }
+
+      if (this._lookahead.type === '[') {
+        this._eat('[');
+        object = {
+          type: 'MemberExpression',
+          object,
+          compute: false, // whether computed property
+          property: this.Expression(),
+        };
+        this._eat(']');
+      }
+
+    }
+    return object;
   }
 
   /**
@@ -447,9 +485,8 @@ class Parser {
     }
   }
 
-
   _isAssignmentTargetValid(node) {
-    if (node.type === 'Identifier') {
+    if (node.type === 'Identifier' || node.type === 'MemberExpression') {
       return node;
     }
     throw new SyntaxError(`Invalid left-hand side in assignment expression`);
@@ -512,7 +549,7 @@ class Parser {
    * RelationalExpression
    *  AdditiveExpression
    *  | AdditiveExpression RELATIONAL_OPERATOR RelationalExpression
-   *  ; TODO: 未实现
+   *  ;
    */
   RelationalExpression() {
     return this._BinaryExpression('AdditiveExpression', 'RELATIONAL_OPERATOR');
