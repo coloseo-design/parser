@@ -33,6 +33,10 @@ const Spec = [
   [/^\bwhile\b/, 'while'], // while循环申明
   [/^\bfor\b/, 'for'], // while循环申明
 
+  /** function */
+  [/^\bfunction\b/, 'function'],
+  [/^\breturn\b/, 'return'],
+
   /** if-else  */
   [/^\bif\b/, 'if'],
   [/^\belse\b/, 'else'],
@@ -42,7 +46,7 @@ const Spec = [
   [/^\bfalse\b/, 'false'],
 
   /** 变量名称 */
-  [/^\w+/, 'IDENTIFIER'], // 与Number语句重合，必须放在NUMBE之后
+  [/^\w+/, 'IDENTIFIER'], // 与Number语句重合，必须放在NUMBER之后
 
   /** 等值计算 必须放在赋值语句上面: ==, != */
   [/^[=!]=/, 'EQUALITY_OPERATOR'],

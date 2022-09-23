@@ -66,7 +66,14 @@ class Parser {
 
   /**
    * Statement
-   *  :ExpressionStatement ｜ BlockStatement | EmptyStatement ｜ VariableStatement | IfStatement
+   *  : ExpressionStatement
+   *  | BlockStatement
+   *  | EmptyStatement
+   *  | VariableStatement
+   *  | IfStatement
+   *  | IterationStatement
+   *  | ReturnStatement
+   *  | FunctionDeclaration
    *  ;
    */
   Statement() {
@@ -83,11 +90,71 @@ class Parser {
       case "while":
       case "for":
         return this.IterationStatement();
+      case "return":
+        return this.ReturnStatement();
+      case "function":
+        return this.FunctionDeclaration();
       default:
         return this.ExpressionStatement();
     }
   }
 
+  /**
+   * FunctionDeclaration
+   * : 'function' Identifier '(' FunctionParamList ')' BlockStatement
+   * ;
+   */
+  FunctionDeclaration() {
+    this._eat('function');
+    const id = this.Identifier();
+    this._eat('(');
+    const params = this.FunctionParamList();
+    this._eat(')')
+    const body = this.BlockStatement();
+    return {
+      type: 'FunctionDeclaration',
+      id,
+      params,
+      body,
+    };
+  }
+
+  /**
+   * FunctionParamList
+   * : FunctionParamList ',' Identifier
+   * ;
+   */
+  FunctionParamList() {
+    const params = [];
+    if (this._lookahead.type === ')') return [];
+    do {
+      params.push(this.Identifier());
+    } while (this._lookahead.type === ',' && this._eat(','))
+    return params;
+  }
+
+  /**
+   * ReturnStatement:
+   * : 'return' [Expression];
+   * ;
+   */
+  ReturnStatement() {
+    this._eat('return');
+    // return; | return x;
+    const argument = this._lookahead.type === ';' ? null : this.Expression();
+    this._eat(';');
+    return {
+      type: 'ReturnStatement',
+      argument,
+    };
+  }
+
+  /**
+   * IterationStatement
+   *  : WhileStatement
+   *  | DoWhileStatement
+   *  | ForStatement
+   */
   IterationStatement() {
     const tokenType = this._lookahead.type;
     if (tokenType === 'while') {
@@ -143,7 +210,6 @@ class Parser {
    *  ;
    */
   ForStatement() {
-
     this._eat('for');
     this._eat('(')
     const init = this._lookahead.type === ';' ? null : this.ForStatementInit();

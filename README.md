@@ -447,6 +447,72 @@ Program
 ```
 
 
+### v11的词法
+##### 增加函数申明，以及return表达式
+
+```javascript
+
+
+Program
+  StatementList
+    Statement
+      EmptyStatement
+      BlockStatement
+      ExpressionStatement
+        SequenceExpression // a=1, c = 12;
+        AssignmentExpression
+          LogicalOrExpression
+            LogicalAndExpression
+              AdditiveExpression
+                MultiplicativeExpression
+                  UnaryExpression
+                    LeftHandSideExpression
+                      PrimaryExpression
+                        Literal
+                            NumericLiteral
+                            StringLiteral
+                            BooleanLiteral
+                            NullLiteral
+                        Identifier
+                        ParenthesizedExpression // '(' Expression ')'
+                        LeftHandSideExpression
+      IfStatement // 'if' '(' Expression ')' Statement 'else' Statement;
+        Expression
+        Statement 
+      WhileStatement // 'while' '(' Expression ')' Statement;
+        Expression // test
+        Statement  // body
+      DoWhileStatement // 'do' Statement 'while' '(' Expression ')';
+        Expression // test
+        Statement  // body
+      ForStatement // 'for' '(' [Expression] ';' [Expression] ';' [Expression] ')' Statement;
+        Expression // init|test|update
+        Statement  // body
+      VariableStatement                           
+        VariableDeclaration             
+          Identifier                                 
+          Initializer                               
+            AssignmentExpression
+      ReturnStatement // 'return' [Expression] ';'
+        Expression
+      FunctionDeclaration // 'function' Identifier '(' FunctionParamList ')' BlockStatement
+        Identifier 
+        BlockStatement
+
+```
+
+代码示例：
+```javascript
+  return 3+2;
+  return x, y;
+  function square(x) {
+    return x * x;
+  }
+  function square() {
+  }
+```
+
+
 
 
 ### 知识点

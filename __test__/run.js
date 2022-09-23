@@ -16,6 +16,7 @@ const tests = [
   require('./unary-test'),
   require('./while-test'),
   require('./for-test'),
+  require('./function-test'),
 ];
 
 const parser = new Parser();
