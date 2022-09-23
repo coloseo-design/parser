@@ -1,3 +1,12 @@
+## [1.0.13](https://github.com/coloseo-design/parser/compare/v1.0.12...v1.0.13) (2022-09-23)
+
+
+### Features
+
+* 🎸 增加函数调用 ([4bd80b9](https://github.com/coloseo-design/parser/commit/4bd80b9a2e510e85aa8d08d205bad352794ab70c))
+
+
+
 ## [1.0.12](https://github.com/coloseo-design/parser/compare/v1.0.11...v1.0.12) (2022-09-23)
 
 
