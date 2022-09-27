@@ -53,9 +53,8 @@ class Interpreter  {
 
   visitCallExpression(node) {
     const { callee, arguments: args } = node;
-    const a = this.visit(callee);
+    const caller = this.visit(callee);
     // lookup real params
-    console.log('scope', this.scope);
     const realParams = args.map(item => {
       const name = this.visit(item);
       if (item.type === 'Identifier') {
@@ -64,7 +63,7 @@ class Interpreter  {
       return name;
     });
     // TODO: hard code test: print
-    if (a === 'print') {
+    if (caller === 'print') {
       console.log(...realParams);
     }
   }

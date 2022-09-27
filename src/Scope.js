@@ -24,13 +24,17 @@ class Scope {
     const { name, value } = symbol;
     this._symbols[name] = value;
   }
+
   // 查找变量
   lookup(name) {
     // 先从当前作用域查找
     if (this._symbols[name]) {
       return this._symbols[name];
     }
-    return this.parentScope.lookup(name);
+    if (this.parentScope) {
+      return this.parentScope.lookup(name);
+    }
+    throw new ReferenceError(`variable "name" not defined`);
   }
 }
 
