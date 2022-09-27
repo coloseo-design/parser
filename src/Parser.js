@@ -1,6 +1,26 @@
 /**
  * parser: recursive descent implementation;
  */
+const { AssignmentExpression } = require("./nodes/AssignmentExpression");
+const { BinaryExpression } = require("./nodes/BinaryExpression");
+const { BlockStatement } = require("./nodes/BlockStatement");
+const { CallExpression } = require("./nodes/CallExpression");
+const { DoWhileStatement } = require("./nodes/DoWhileStatement");
+const { EmptyStatement } = require("./nodes/EmptyStatement");
+const { ExpressionStatement } = require("./nodes/ExpressionStatement");
+const { ForStatement } = require("./nodes/ForStatement");
+const { FunctionDeclaration } = require("./nodes/FunctionDeclaration");
+const { Identifier } = require("./nodes/Identifier");
+const { IfStatement } = require("./nodes/IfStatement");
+const { Literal } = require("./nodes/Literal");
+const { LogicalExpression } = require("./nodes/LogicalExpression");
+const { MemberExpression } = require("./nodes/MemberExpression");
+const { ReturnStatement } = require("./nodes/ReturnStatement");
+const { SequenceExpression } = require("./nodes/SequenceExpression");
+const { UnaryExpression } = require("./nodes/UnaryExpression");
+const { VariableDeclaration } = require("./nodes/VariableDeclaration");
+const { VariableStatement } = require("./nodes/VariableStatement");
+const { WhileStatement } = require("./nodes/WhileStatement");
 const { Tokenizer } = require("./Tokenizer");
 
 const stopLookahead = "}";
@@ -109,12 +129,7 @@ class Parser {
     const id = this.Identifier();
     const params = this.FunctionParamList();
     const body = this.BlockStatement();
-    return {
-      type: 'FunctionDeclaration',
-      id,
-      params,
-      body,
-    };
+    return new FunctionDeclaration(id, params, body);
   }
 
   /**
@@ -142,13 +157,9 @@ class Parser {
    */
   ReturnStatement() {
     this._eat('return');
-    // return; | return x;
-    const argument = this._lookahead.type === ';' ? null : this.Expression();
+    const argument = this._lookahead.type === ';' ? null : this.Expression(); // return; | return x;
     this._eat(';');
-    return {
-      type: 'ReturnStatement',
-      argument,
-    };
+    return new ReturnStatement(argument);
   }
 
   /**
@@ -181,11 +192,7 @@ class Parser {
     const test = this.Expression();
     this._eat(')')
     const body = this.Statement();
-    return {
-      type: 'WhileStatement',
-      test,
-      body,
-    }
+    return new WhileStatement(test, body);
   }
   /**
    * DoWhileStatement
@@ -199,11 +206,7 @@ class Parser {
     this._eat('(');
     const test = this.Expression();
     this._eat(')')
-    return {
-      type: 'DoWhileStatement',
-      body,
-      test,
-    };
+    return new DoWhileStatement(test, body);
    }
 
   /**
@@ -222,14 +225,7 @@ class Parser {
     this._eat(')');
 
     const body = this.Statement();
-
-    return {
-      type: 'ForStatement',
-      init,
-      test,
-      update,
-      body,
-    };
+    return new ForStatement(init, test, update, body);
   }
   /**
    * ForStatementInit
@@ -257,21 +253,13 @@ class Parser {
     this._eat(')');
     const consequent = this.Statement();
     const alternate = (this._lookahead && this._lookahead.type === 'else') ? (this._eat('else') && this.Statement()) : null;
-    return {
-      type: 'IfStatement',
-      test,
-      consequent,
-      alternate,
-    };
+    return new IfStatement(test, consequent, alternate);
   }
 
   _VariableStatement() {
     this._eat('let'); // 消费掉let，tokenizer继续
     const declarations = this.VariableDeclarationList();
-    return {
-      type: 'VariableStatement',
-      declarations,
-    };
+    return new VariableStatement(declarations);
   }
 
   /**
@@ -308,12 +296,7 @@ class Parser {
     const init = this._lookahead.type === 'ASSIGNMENT'
       ? this.VariableInitializer()
       : null;
-    const variable = {
-      type: 'VariableDeclaration',
-      id,
-      init,
-    };
-    return variable;
+    return new VariableDeclaration(id, init);
   }
   /**
    * VariableInitializer
@@ -333,9 +316,7 @@ class Parser {
    */
   EmptyStatement() {
     this._eat(";");
-    return {
-      type: "EmptyStatement",
-    };
+    return new EmptyStatement();
   }
 
   /**
@@ -347,10 +328,7 @@ class Parser {
     this._eat("{");
     const body = this._lookahead.type !== "}" ? this.StatementList() : [];
     this._eat("}");
-    return {
-      type: "BlockStatement",
-      body,
-    };
+    return new BlockStatement(body);
   }
 
   /**
@@ -361,10 +339,7 @@ class Parser {
   ExpressionStatement() {
     const expression = this.Expression();
     this._eat(";"); // 消费掉分号
-    return {
-      type: "ExpressionStatement",
-      expression,
-    };
+    return new ExpressionStatement(expression);
   }
 
   /**
@@ -380,10 +355,7 @@ class Parser {
       expressions.push(item);
     } while (this._lookahead.type === ',' && this._eat(','))
     if (expressions.length > 1) {
-      return {
-        type: 'SequenceExpression',
-        expressions,
-      };
+      return new SequenceExpression(expressions);
     }
     return expressions.shift();
   }
@@ -399,18 +371,15 @@ class Parser {
     if (!this._isAssignmentOperator(this._lookahead.type)) {
       return left;
     }
-    return {
-      type: "AssignmentExpression",
-      left: this._isAssignmentTargetValid(left),
-      operator: this.AssignmentOperator().value,
-      right: this.AssignmentExpression(), // 支持a = b = 1
-    };
+    const operator = this.AssignmentOperator().value;
+    return new AssignmentExpression(operator, this._isAssignmentTargetValid(left), this.AssignmentExpression());
   }
 
   /**
    * UnaryExpression
    *  : LeftHandSideExpression
    *  | ADDITIVE_OPERATOR UnaryExpression
+   *  | MULTIPLICATIVE_OPERATOR UnaryExpression
    *  | LOGICAL_NOT UnaryExpression
    *  ;
    */
@@ -419,11 +388,7 @@ class Parser {
     const unaryTokenTypes = ['ADDITIVE_OPERATOR', 'MULTIPLICATIVE_OPERATOR', 'LOGICAL_NOT'];
     if (unaryTokenTypes.includes(this._lookahead.type)) {
       const operator = this._eat(this._lookahead.type).value;
-      return {
-        type: 'UnaryExpression',
-        operator,
-        argument: this.UnaryExpression(), // --x; !!x  ++x
-      };
+      return new UnaryExpression(operator, this.UnaryExpression());
     }
     return this.LeftHandSideExpression();
   }
@@ -456,11 +421,12 @@ class Parser {
    *
    */
   CallExpression(callee) {
-    let expression = {
-      type: 'CallExpression',
-      callee,
-      arguments: this.Arguments(),
-    };
+    let expression = new CallExpression(callee, this.Arguments());
+    // let expression = {
+    //   type: 'CallExpression',
+    //   callee,
+    //   arguments: this.Arguments(),
+    // };
     // a()();
     if (this._lookahead.type === '(') {
       expression = this.CallExpression(expression);
@@ -507,22 +473,12 @@ class Parser {
     while (objectAccessTokenType.includes(this._lookahead.type)) {
       if (this._lookahead.type === '.') {
         this._eat('.');
-        object = {
-          type: 'MemberExpression',
-          object,
-          compute: false, // whether computed property
-          property: this.Identifier(),
-        };
+        object = new MemberExpression(object, this.Identifier());
       }
 
       if (this._lookahead.type === '[') {
         this._eat('[');
-        object = {
-          type: 'MemberExpression',
-          object,
-          compute: false, // whether computed property
-          property: this.Expression(),
-        };
+        object = new MemberExpression(object, this.Expression());
         this._eat(']');
       }
 
@@ -536,10 +492,7 @@ class Parser {
    */
   Identifier() {
     const identifier = this._eat('IDENTIFIER');
-    return {
-      type: 'Identifier',
-      name: identifier.value,
-    }
+    return new Identifier(identifier.value);
   }
 
   _isAssignmentTargetValid(node) {
@@ -643,12 +596,7 @@ class Parser {
     while (this._lookahead.type === tokenType) {
       const operator = this._eat(tokenType).value;
       const right = this[builderName]();
-      left = {
-        type: 'LogicalExpression',
-        left,
-        operator,
-        right,
-      };
+      left = new LogicalExpression(operator, left, right);
     }
     return left;
   }
@@ -658,12 +606,7 @@ class Parser {
     while (this._lookahead.type === tokenType) {
       const operator = this._eat(tokenType).value;
       const right = this[builderName]();
-      left = {
-        type: 'BinaryExpression',
-        left,
-        operator,
-        right,
-      };
+      left = new BinaryExpression(operator, left, right);
     }
     return left;
   }
@@ -737,10 +680,8 @@ class Parser {
    */
   StringLiteral() {
     const token = this._eat("STRING");
-    return {
-      type: "StringLiteral",
-      value: token.value.slice(1, -1),
-    };
+    const value = token.value.slice(1, -1); // "string" -> string
+    return new Literal('String', value);
   }
 
   /**
@@ -750,10 +691,7 @@ class Parser {
    */
   NumericLiteral() {
     const token = this._eat("NUMBER");
-    return {
-      type: "NumericLiteral",
-      value: Number(token.value),
-    };
+    return new Literal('Numeric', Number(token.value));
   }
 
   /**
@@ -764,10 +702,7 @@ class Parser {
    */
   BooleanLiteral(value) {
     this._eat(value ? 'true' : 'false');
-    return {
-      type: "BooleanLiteral",
-      value,
-    };
+    return new Literal('Boolean', value);
   }
   /**
    * NullLiteral
@@ -776,10 +711,7 @@ class Parser {
    */
   NullLiteral() {
     this._eat('null');
-    return {
-      type: "NullLiteral",
-      value: null,
-    };
+    return new Literal('Null', null);
   }
   /**
    * Expects a token of given type
