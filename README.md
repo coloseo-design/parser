@@ -651,6 +651,37 @@ Program
 
 ```
 
+### v14 
+#### 增加作用域: 全局作用域和块级作用域
+```javascript
+  GLOBAL
+    BLOCK
+```
+
+作用域结构
+```javascript
+scope
+  name // 作用域名称
+  level  // 作用域层级
+  _symbols  // 当前作用域所存储的普通变量以及函数
+```
+#### 增加ast的遍历执行, 完成如下内容
+```javascript
+Program
+  BlockStatement
+  VariableStatement
+    VariableDeclaration
+      Identifier
+  ExpressionStatement
+    AssignmentExpression
+    BinaryExpression
+      NumericLiteral
+      StringLiteral
+      NullLiteral
+      BooleanLiteral
+```
+
+
 
 
 ### 知识点
