@@ -1,3 +1,18 @@
+## [1.0.14](https://github.com/coloseo-design/parser/compare/v1.0.13...v1.0.14) (2022-09-28)
+
+
+### Bug Fixes
+
+* 🐛 修复变量作用域查找可能引起的错误 ([860b743](https://github.com/coloseo-design/parser/commit/860b7438e2c9763095fee0b7403704434e51da87))
+
+
+### Features
+
+* 🎸 更新文档 ([a925db1](https://github.com/coloseo-design/parser/commit/a925db15135e240f46c3dea5f8d352b0f696e62a))
+* 🎸 增加代码解析，增加运行时作用域 ([7d7c2a3](https://github.com/coloseo-design/parser/commit/7d7c2a3865c4fa0c404f070dfc5c04a96b8fc3d5))
+
+
+
 ## [1.0.13](https://github.com/coloseo-design/parser/compare/v1.0.12...v1.0.13) (2022-09-23)
 
 
