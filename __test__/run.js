@@ -36,11 +36,16 @@ const interpreter = new Interpreter();
 
 console.log(interpreter.interpret(`
   let a = 3 + 2;
+  let b = a;
+  function add(a, b) {
+    return a + b;
+  }
   {
     a = 3;
     print("inner a", a);
   }
-  print('out a', a);
+  let c = add(a, b);
+  print('out a', a, b, c);
 `));
 
 console.log('All assertions passed.');

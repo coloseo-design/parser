@@ -20,9 +20,9 @@ class Scope {
   }
 
   // 作用域中添加变量
-  inert(symbol) {
+  insert(symbol) {
     const { name, value } = symbol;
-    this._symbols[name] = value;
+    this._symbols[name] = symbol;
   }
 
   // 查找变量
@@ -31,10 +31,10 @@ class Scope {
     if (this._symbols[name]) {
       return this._symbols[name];
     }
-    if (this.parentScope) {
-      return this.parentScope.lookup(name);
+    if (this.parent) {
+      return this.parent.lookup(name);
     }
-    throw new ReferenceError(`variable "name" not defined`);
+    throw new ReferenceError(`variable "${name}" not defined`);
   }
 }
 

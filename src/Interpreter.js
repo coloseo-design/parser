@@ -1,10 +1,11 @@
 const { Parser } = require('./Parser');
-const { Scope } = require('./Scope');
-const { Symbol } = require('./Symbol');
+const { Function } = require('./scope/Function');
+const { Scope } = require('./scope/Scope');
+const { Symbol } = require('./scope/Symbol');
 
 // Interpreter
 
-class Interpreter  {
+class Interpreter {
   constructor(parser) {
     this.parser = new Parser();
   }
@@ -46,7 +47,11 @@ class Interpreter  {
     const scope = new Scope('BLOCK', this.scope.level + 1, this.scope);
     this.scope = scope;
     for (const Statement of body) {
-      this.visit(Statement);
+      const result = this.visit(Statement);
+      if (Statement.type === 'ReturnStatement') {
+        this.scope = scope.parent;
+        return result;
+      }
     }
     this.scope = scope.parent;
   }
@@ -58,23 +63,43 @@ class Interpreter  {
     const realParams = args.map(item => {
       const name = this.visit(item);
       if (item.type === 'Identifier') {
-        return this.scope.lookup(name);
+        return this.getSymbol(name).value;
       }
       return name;
     });
-    // TODO: hard code test: print
+    // hard code test: print
     if (caller === 'print') {
       console.log(...realParams);
+      return;
     }
+    const func = this.getSymbol(caller).value;
+    if (!(func instanceof Function)) {
+      throw new SyntaxError(`Bad function '${caller}'`)
+    }
+    if (func.paramters.length !== args.length) {
+      throw new SyntaxError(`Dad number of paramrters of '${caller}'`);
+    }
+    // create new function level scope
+    const scope = new Scope('Function', this.scope.level + 1, this.scope);
+    this.scope = scope;
+    const { body, paramters } = func;
+    paramters.forEach((param, index) => {
+      const name = this.visit(param);
+      this.setSymbol(name, realParams[index]);
+    });
+    // copy input parameter into scope
+    const result = this.visit(body);
+    this.scope = scope.parent;
+    return result;
   }
 
   visitAssignmentExpression(node) {
     const { operator, left, right } = node;
     let lhs = this.visit(left);
     let rhs = this.visit(right);
-    switch(operator) {
+    switch (operator) {
       case '=':
-        return this.scope.inert(new Symbol(lhs, rhs));
+        return this.setSymbol(lhs, rhs);
     }
 
   }
@@ -92,10 +117,14 @@ class Interpreter  {
   }
 
   visitVariableDeclaration(node) {
-    const {id, init} = node;
+    const { id, init } = node;
     const name = this.visit(id);
-    const value = this.visit(init);
-    this.scope.inert(new Symbol(name, value));
+    let value = this.visit(init);
+    if (init.type === 'Identifier') { // 处理变量拷贝
+      value = this.getSymbol(value).value; // 从最近的
+    }
+    // const value = this.getRightValue(this.visit(init));
+    this.setSymbol(name, value);
   }
 
   visitIdentifier(node) {
@@ -111,15 +140,23 @@ class Interpreter  {
    */
   visitBinaryExpression(node) {
     const { operator, left, right } = node;
+    let leftValue = this.visit(left);
+    let rightValue = this.visit(right);
+    if (left.type === 'Identifier') {
+      leftValue = this.getSymbol(leftValue).value;
+    }
+    if (right.type === 'Identifier') {
+      rightValue = this.getSymbol(rightValue).value;
+    }
     switch (operator) {
       case '+':
-        return this.visit(left) + this.visit(right);
+        return leftValue + rightValue;
       case '-':
-        return this.visit(left) - this.visit(right);
+        return leftValue - rightValue;
       case '*':
-        return this.visit(left) * this.visit(right);
+        return leftValue * rightValue;
       case '/':
-        return this.visit(left) / this.visit(right);
+        return leftValue / rightValue;
     }
   }
 
@@ -141,6 +178,39 @@ class Interpreter  {
   visitBooleanLiteral(node) {
     const { value } = node;
     return value;
+  }
+
+  /**
+   * @param {Node} node
+   */
+  visitFunctionDeclaration(node) {
+    const { id, params, body } = node;
+    const name = this.visit(id);
+    this.setSymbol(name, new Function(params, body));
+  }
+  /**
+   *
+   * @param {Node} node
+   */
+  visitReturnStatement(node) {
+    const { argument } = node;
+    return this.visit(argument);
+  }
+
+  /**
+   * get stored symbol in scope
+   * @param {string} name // the name of symbol stored in scope
+   */
+  getSymbol(name) {
+    return this.scope.lookup(name);
+  }
+  /**
+   * store a named symbol into scope
+   * @param {string} name
+   * @param {string | number | null | boolean | Function} value
+   */
+  setSymbol(name, value) {
+    this.scope.insert(new Symbol(name, value));
   }
 }
 
