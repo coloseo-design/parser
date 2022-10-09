@@ -1,5 +1,5 @@
 const { Parser } = require('./Parser');
-const { Function } = require('./scope/Function');
+const { Function, BuiltinFunction } = require('./scope/Function');
 const { Scope } = require('./scope/Scope');
 const { Symbol } = require('./scope/Symbol');
 
@@ -35,6 +35,7 @@ class Interpreter {
     const { body } = node;
     // 创建全局作用域
     const globalScope = new Scope('GLOBAL', 1);
+    globalScope._builtin_();
     this.scope = globalScope;
     for (const statement of body) {
       this.visit(statement);
@@ -67,23 +68,24 @@ class Interpreter {
       }
       return name;
     });
-    // hard code test: print
-    if (caller === 'print') {
-      console.log(...realParams);
-      return;
-    }
     const func = this.getSymbol(caller).value;
     if (!(func instanceof Function)) {
       throw new SyntaxError(`Bad function '${caller}'`)
     }
-    if (func.paramters.length !== args.length) {
-      throw new SyntaxError(`Dad number of paramrters of '${caller}'`);
+
+    if (func instanceof BuiltinFunction) {
+      return func.body(...realParams);
+    }
+
+    console.log('parameters', func.parameters)
+    if (func.parameters.length !== args.length) {
+      throw new SyntaxError(`Dad number of parameters of '${caller}'`);
     }
     // create new function level scope
     const scope = new Scope('Function', this.scope.level + 1, this.scope);
     this.scope = scope;
-    const { body, paramters } = func;
-    paramters.forEach((param, index) => {
+    const { body, parameters } = func;
+    parameters.forEach((param, index) => {
       const name = this.visit(param);
       this.setSymbol(name, realParams[index]);
     });
@@ -101,7 +103,6 @@ class Interpreter {
       case '=':
         return this.setSymbol(lhs, rhs);
     }
-
   }
 
   visitExpressionStatement(node) {
@@ -181,6 +182,8 @@ class Interpreter {
   }
 
   /**
+   * store function declaration in scope
+   *
    * @param {Node} node
    */
   visitFunctionDeclaration(node) {
@@ -188,8 +191,9 @@ class Interpreter {
     const name = this.visit(id);
     this.setSymbol(name, new Function(params, body));
   }
+
   /**
-   *
+   * visitReturnStatement
    * @param {Node} node
    */
   visitReturnStatement(node) {

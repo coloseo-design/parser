@@ -1,3 +1,7 @@
+const assert = require('assert');
+const { Symbol } = require('./Symbol');
+const { BuiltinFunction } = require("./Function");
+
 /**
  * 变量作用域
  * name 作用域名称
@@ -14,9 +18,13 @@ class Scope {
     this.parent = parent;
   }
 
-  // 增加内置变量
-  _buildin_() {
-    // this.inert('print', undefined);
+  /**
+   * _builtin_
+   * load builtin function and variables
+   */
+  _builtin_() {
+    this.insert(new Symbol('print', new BuiltinFunction(console.log)));
+    this.insert(new Symbol('deepEqual', new BuiltinFunction(assert.deepEqual)));
   }
 
   // 作用域中添加变量
@@ -34,7 +42,7 @@ class Scope {
     if (this.parent) {
       return this.parent.lookup(name);
     }
-    throw new ReferenceError(`variable "${name}" not defined`);
+    throw new ReferenceError(`Can't find variable "${name}"`);
   }
 }
 
