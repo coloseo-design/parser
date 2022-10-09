@@ -8,4 +8,9 @@ let kindOfSister = 'little sister';
 if (age < ageOfLittleSister) {
   kindOfSister = 'older sister';
 }
+
+let littleGirl = age > ageOfLittleSister || age == ageOfLittleSister;
+deepEqual(littleGirl, true);
+let older = 12 > 11;
+deepEqual(older || true, true);
 deepEqual(kindOfSister, 'little sister');

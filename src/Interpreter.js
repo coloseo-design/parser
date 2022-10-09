@@ -160,6 +160,30 @@ class Interpreter {
   }
 
   /**
+   * LogicalExpression
+   * || &&
+   * @param {*} node
+   */
+  visitLogicalExpression(node) {
+    const { operator, left, right } = node;
+    let lhs = this.visit(left);
+    if (left instanceof Identifier) {
+      lhs = this.getSymbol(lhs).value;
+    }
+    let rhs = this.visit(right);
+    if (right instanceof Identifier) {
+      rhs = this.getSymbol(rhs).value;
+    }
+    switch(operator) {
+      case '||':
+        return lhs || rhs;
+      case '&&':
+        return lhs && rhs;
+    }
+
+  }
+
+  /**
    * UnaryExpression
    * @param {*} node
    * @return Identifier

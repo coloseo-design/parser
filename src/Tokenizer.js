@@ -66,6 +66,7 @@ const Spec = [
   /** 逻辑运算符 */
   [/^&&/, 'LOGICAL_AND'], // and
   [/^\|\|/, 'LOGICAL_OR'], // or
+  /** 一元操作符号 */
   [/^!/, 'LOGICAL_NOT'], // not
   [/^\+\+/, 'SELF_ADDITIVE_OPERATOR'], // ++
   [/^\-\-/, 'SELF_ADDITIVE_OPERATOR'], // --
