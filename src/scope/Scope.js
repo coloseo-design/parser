@@ -27,10 +27,27 @@ class Scope {
     this.insert(new Symbol('deepEqual', new BuiltinFunction(assert.deepEqual)));
   }
 
-  // 作用域中添加变量
+
+  /**
+   * add symbol into runtime scope
+   * @param {*} symbol
+   */
   insert(symbol) {
-    const { name, value } = symbol;
+    const { name } = symbol;
     this._symbols[name] = symbol;
+  }
+
+  /**
+   * update stored variable symbol and function symbol
+   *
+   * @param {*} symbol
+   */
+  update(symbol) {
+    const { name, value } = symbol;
+    const found = this.lookup(name);
+    Object.assign(found, {
+      value,
+    })
   }
 
   // 查找变量

@@ -67,6 +67,8 @@ const Spec = [
   [/^&&/, 'LOGICAL_AND'], // and
   [/^\|\|/, 'LOGICAL_OR'], // or
   [/^!/, 'LOGICAL_NOT'], // not
+  [/^\+\+/, 'SELF_ADDITIVE_OPERATOR'], // ++
+  [/^\-\-/, 'SELF_ADDITIVE_OPERATOR'], // --
 
   /** 二元操作符号 必须在赋值之后 */
   [/^[+\-]/, 'ADDITIVE_OPERATOR'], // +-

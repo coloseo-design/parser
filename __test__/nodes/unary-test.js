@@ -56,15 +56,19 @@ module.exports = test => {
       type: 'ExpressionStatement',
       expression: {
         type: 'UnaryExpression',
-        operator: '+',
+        operator: '++',
         argument: {
-          type: 'UnaryExpression',
-          operator: '+',
-          argument: {
-            type: 'Identifier',
-            name: 'x',
-          }
+          type: 'Identifier',
+          name: 'x',
         }
+        // argument: {
+        //   type: 'UnaryExpression',
+        //   operator: '+',
+        //   argument: {
+        //     type: 'Identifier',
+        //     name: 'x',
+        //   }
+        // }
       },
     }],
   });
