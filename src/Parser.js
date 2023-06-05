@@ -671,7 +671,6 @@ class Parser {
       case "null":
         return this.NullLiteral();
     }
-    console.log('token--', token);
     throw new SyntaxError(`Literal: unexpected literal product`);
   }
   /**
@@ -724,9 +723,7 @@ class Parser {
         `Unexpected end of input, expected: "${tokenType}"`
       );
     }
-
     if (token.type !== tokenType) {
-      console.log('token', token);
       throw new SyntaxError(
         `Unexpected token: "${token.type}", expected: "${tokenType}"`
       );

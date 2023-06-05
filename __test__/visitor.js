@@ -19,7 +19,9 @@ const tests = [
 
 const interpreter = new Interpreter();
 tests.forEach(url => {
-  const code = fs.readFileSync(url);
+  const code = fs.readFileSync(url, {
+    encoding: 'utf-8',
+  });
   interpreter.interpret(code);
 });
 

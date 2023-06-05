@@ -107,7 +107,17 @@ class Tokenizer {
 
     const string = this._string.slice(this._cursor);
     for (const [regexp, tokenType] of Spec) {
-      const tokenValue = this._match(regexp, string);
+      let tokenValue = this._match(regexp, string);
+      if (tokenValue && tokenType === 'NUMBER') {
+        if (this._string[this._cursor] === '.') {
+          tokenValue += ".";
+          this._cursor++;
+          const res = this._match(regexp, this._string.slice(this._cursor));
+          if (res) {
+            tokenValue += res;
+          }
+        }
+      }
       if (!tokenValue) {
         continue;
       }

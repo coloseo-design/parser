@@ -21,6 +21,28 @@ module.exports = test => {
     ],
   });
 
+  test(`let a = 0.012;`, {
+    type: 'Program',
+    body: [
+      {
+        type: 'VariableStatement',
+        declarations: [
+          {
+            type: 'VariableDeclaration',
+            id: {
+              type: 'Identifier',
+              name: 'a',
+            },
+            init: {
+              type: 'NumericLiteral',
+              value: 0.012,
+            }
+          }
+        ]
+      }
+    ],
+  });
+
   test(`let a;`, {
     type: 'Program',
     body: [
